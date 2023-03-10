@@ -1,4 +1,5 @@
 import java.io.*;
+import java.util.Arrays;
 import java.util.StringTokenizer;
 
 public class MazeAssignment {
@@ -12,9 +13,16 @@ public class MazeAssignment {
         System.out.println("Enter columns");
         int cols = readInt();
 
-        int [][] maze = new int[rows][cols];
+        char [][] maze = new char[rows][cols];
 
+        drawMaze(maze);
 
+        for(char[] c : maze){
+            for(char x:c){
+                System.out.print(x+" ");
+            }
+            System.out.println();
+        }
     }
 
 
@@ -44,9 +52,10 @@ public class MazeAssignment {
         }
     }
 
-    static void drawPath(char[][]maze){
+    static int[] drawExit(char[][]maze){
 
         int exitPos = (int) (Math.random()*4+1);
+        int[] exitCoord = new int[2];
         /**
          * If exit position is 1, the exit will be at the top
          * if exit position is 2, the exit wil be on the bottom
@@ -56,18 +65,40 @@ public class MazeAssignment {
 
 
         if(exitPos==1){ //exit will be on the top
-            int exitCell = (int)(Math.random()*maze[0].length+1);
+            int exitCell = (int)(Math.random()*(maze[0].length-1)+1);
             maze[0][exitCell-1] = 'X';
+            exitCoord[0] = 0;
+            exitCoord[1] = exitCell-1;
+
         } else if(exitPos==2){
-            int exitCell = (int)(Math.random()*maze[0].length+1);
+            int exitCell = (int)(Math.random()*(maze[0].length-1)+1);
             maze[maze.length-1][exitCell-1] = 'X';
+            exitCoord[0] = maze.length-1;
+            exitCoord[1] = exitCell-1;
+
         }else if(exitPos==3){
-            int exitCell = (int)(Math.random()*maze.length+1);
+            int exitCell = (int)(Math.random()*(maze[0].length-1)+1);
             maze[exitCell-1][0] = 'X';
+            exitCoord[0] = exitCell-1;
+            exitCoord[1] = 0;
+
         }else if(exitPos==4){
-            int exitCell = (int)(Math.random()*maze.length+1);
-            maze[exitCell-1][maze.length-1] = 'X';
+            int exitCell = (int)(Math.random()*(maze[0].length-1)+1);
+            maze[exitCell-1][maze[0].length-1] = 'X';
+            exitCoord[0] = exitCell-1;
+            exitCoord[1] = maze[0].length-1;
         }
+        return exitCoord;
+    }
+
+    static void drawMaze(char[][] maze){
+        drawMazeBarriers(maze);
+        int exitCoord[] = drawExit(maze);
+        drawPath(maze, exitCoord);
+    }
+
+    static void drawPath(char[][] maze, int[] exitCoord){
+
 
     }
 
