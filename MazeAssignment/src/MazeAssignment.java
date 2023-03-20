@@ -77,13 +77,13 @@ public class MazeAssignment {
             exitCoord[1] = exitCell-1;
 
         }else if(exitPos==3){
-            int exitCell = (int)(Math.random()*(maze[0].length-1)+1);
+            int exitCell = (int)(Math.random()*(maze.length-1)+1);
             maze[exitCell-1][0] = 'X';
             exitCoord[0] = exitCell-1;
             exitCoord[1] = 0;
 
         }else if(exitPos==4){
-            int exitCell = (int)(Math.random()*(maze[0].length-1)+1);
+            int exitCell = (int)(Math.random()*(maze.length-1)+1);
             maze[exitCell-1][maze[0].length-1] = 'X';
             exitCoord[0] = exitCell-1;
             exitCoord[1] = maze[0].length-1;
@@ -94,12 +94,14 @@ public class MazeAssignment {
     static void drawMaze(char[][] maze){
         drawMazeBarriers(maze);
         int exitCoord[] = drawExit(maze);
-        drawPath(maze, exitCoord);
+        int startCoord[] = new int[2];
+        startCoord[0] = (int)(Math.random()* maze.length-2)+1;
+        startCoord[1] = (int)(Math.random()* maze[0].length-2)+1;
+//        drawPath(maze, exitCoord, startCoord);
     }
 
-    static void drawPath(char[][] maze, int[] exitCoord){
-
-
+    static void drawPath(char[][]maze, int[] exitCoord, int[] startCoord){
+        
     }
 
 }
