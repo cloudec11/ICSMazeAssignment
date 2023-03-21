@@ -110,7 +110,8 @@ public class MazeAssignment {
 
         int direction = 0;
 
-        int pathLength = (int) (Math.random()*Math.min(maze.length-2, maze[0].length-2)+1);
+        int pathLength = (int) (Math.random()*Math.max(maze.length, maze[0].length)+1);
+        pathLength = 20;
         System.out.println("Path length is " + pathLength);
         System.out.print(currentPos[0] + ", " + currentPos[1]);
         System.out.println();
@@ -181,12 +182,12 @@ public class MazeAssignment {
 
                 if(Xchange==0){
                     int move = (int)(Math.random()*2+1);
-                    if(move==1) direction = 4;
-                    if(move==2) direction = 3;
+                    if(move==1) direction = 3;
+                    if(move==2) direction = 4;
                 }
 
-                if(Xchange==1) direction = 3;
-                if(Xchange==-1) direction = 4;
+                if(Xchange==1) direction = 4;
+                if(Xchange==-1) direction = 3;
 
             }
 
