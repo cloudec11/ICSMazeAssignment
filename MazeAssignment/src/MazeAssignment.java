@@ -23,6 +23,7 @@ public class MazeAssignment {
             }
             System.out.println();
         }
+
     }
 
 
@@ -65,26 +66,26 @@ public class MazeAssignment {
 
 
         if(exitPos==1){ //exit will be on the top
-            int exitCell = (int)(Math.random()*(maze[0].length-1)+1);
+            int exitCell = (int)(Math.random()*(maze[0].length-2)+1);
             maze[0][exitCell] = 'X';
             exitCoord[0] = 0;
             exitCoord[1] = exitCell;
 
         } else if(exitPos==2){
-            int exitCell = (int)(Math.random()*(maze[0].length-1)+1);
+            int exitCell = (int)(Math.random()*(maze[0].length-2)+1);
             maze[maze.length-1][exitCell] = 'X';
             exitCoord[0] = maze.length-1;
             exitCoord[1] = exitCell;
 
         }else if(exitPos==3){
-            int exitCell = (int)(Math.random()*(maze.length-1)+1);
-            maze[exitCell-1][0] = 'X';
+            int exitCell = (int)(Math.random()*(maze.length-2)+1);
+            maze[exitCell][0] = 'X';
             exitCoord[0] = exitCell;
             exitCoord[1] = 0;
 
         }else if(exitPos==4){
-            int exitCell = (int)(Math.random()*(maze.length-1)+1);
-            maze[exitCell-1][maze[0].length-1] = 'X';
+            int exitCell = (int)(Math.random()*(maze.length-2)+1);
+            maze[exitCell][maze[0].length-1] = 'X';
             exitCoord[0] = exitCell;
             exitCoord[1] = maze[0].length-1;
         }
@@ -109,104 +110,146 @@ public class MazeAssignment {
 
         int direction = 0;
 
-        int deltaXY = (int)(Math.random()*2)+1;
+        int pathLength = (int) (Math.random()*Math.min(maze.length-2, maze[0].length-2)+1);
+        System.out.println("Path length is " + pathLength);
+        System.out.print(currentPos[0] + ", " + currentPos[1]);
+        System.out.println();
+        if(currentPos[0]== maze.length-1) {
+            //if current y coordinate is the bottom
+            currentPos[0]--;
+            //decrement because 2d array is highest index at the bottom (max row number is the bottom)
+            //if row number is at the bottom, going north means decrementing the row number aka the Ycoord
+            maze[currentPos[0]][currentPos[1]] = 'O';
+            Ychange = -1;
 
+        } else if (currentPos[0]==0){
+            //if y coordinate is at the top of the maze
+            currentPos[0]++;
+            //increment because 2d array is highest index at the bottom (max row number is the bottom)
+            //if row number is at the top, going south means incrementing the row number aka the Ycoord
+            maze[currentPos[0]][currentPos[1]] = 'O';
+            Ychange = 1;
 
+        } else if (currentPos[1]==0){
+            //if x coordinate is on the very left border
+            currentPos[1]++;
+            //if coloumn number is at the left, going east means incrementing the coloumn number aka the Xcoord
+            maze[currentPos[0]][currentPos[1]] = 'O';
+            Xchange = 1;
 
-        if(deltaXY == 1){
-            //if deltaXY is 1, create path in Y
-
-            if(Ychange==1) direction = 1;
-            if(Ychange==-1) direction = 2;
-
-            if(Ychange==0) {
-                int increaseOrDecrease = (int) (Math.random() * 2 + 1);
-                if (increaseOrDecrease == 1) {
-                    direction = 1;
-
-                }
-                //direction is 1(north) if increase
-                else if (increaseOrDecrease == 2) {
-                    direction = 2;
-
-                }
-                //direction is 2(south) if decrease
-            }
-        }
-        else if(deltaXY == 2){
-            //if deltaXY is 2, create path in X
-
-            if(Xchange==1) direction = 3;
-            if(Xchange==-1) direction = 4;
-
-
-
-            if(Xchange==0) {
-                int increaseOrDecrease = (int) (Math.random() * 2 + 1);
-                if (increaseOrDecrease == 1) {
-                    direction = 3;
-
-                } else if (increaseOrDecrease == 2) {
-                    direction = 4;
-
-                }
-            }
+        } else if (currentPos[1]==maze[0].length-1){
+            //if x coordinate is on the very right border
+            currentPos[1]--;
+            //if coloumn number is at the right, going west means decrementing the coloumn number aka the Xcoord
+            maze[currentPos[0]][currentPos[1]] = 'O';
+            Xchange = -1;
 
         }
 
-        int pathLength = (int)((Math.random()*maze[0].length-2)+1);
 
-        boolean firstPass = true;
+        for (int i = 1; i < pathLength; i++) {
+            System.out.print(currentPos[0] + ", " + currentPos[1]);
+            System.out.println();
 
-        for (int i = 0; i < pathLength; i++) {
-            if(i==0){
-                currentPos[0]--;
-                //decrement because 2d array is bottom to top (max row number is the bottom)
-                //if max row number is at the bottom, going north means decrementing the row number aka the Xcoord
-                maze[currentPos[0]][currentPos[1]] = 'O';
-                Ychange = 1;
-                firstPass = false;
+            int deltaXY = (int)(Math.random()*2)+1;
+
+            if(deltaXY == 1){
+                //if deltaXY is 1, create path in Y
+
+                if(maze[currentPos[0]+Ychange][currentPos[1]]=='B'){
+                    if(Ychange==1) direction = 1;
+                    if(Ychange==-1) direction = 2;
+                }
+
+                if(Ychange==0){
+                    int move = (int)(Math.random()*2+1);
+                    if(move==1) direction = 1;
+                    if(move==2) direction = 2;
+                }
+
+                if(Ychange==1) direction = 2;
+                if(Ychange==-1) direction = 1;
+
+            }
+            else if(deltaXY == 2){
+                //if deltaXY is 2, create path in X
+
+                if(maze[currentPos[0]][currentPos[1]+Xchange]=='B'){
+                    if(Xchange==1) direction = 3;
+                    if(Xchange==-1) direction = 4;
+                }
+
+                if(Xchange==0){
+                    int move = (int)(Math.random()*2+1);
+                    if(move==1) direction = 4;
+                    if(move==2) direction = 3;
+                }
+
+                if(Xchange==1) direction = 3;
+                if(Xchange==-1) direction = 4;
 
             }
 
-            while(!firstPass) {
+
                 switch (direction) {
                     case 1:
                         //north
                         currentPos[0]--;
+                        System.out.println("north");
+                        if(maze[currentPos[0]][currentPos[1]] == 'B'|| maze[currentPos[0]][currentPos[1]] == 'X') {
+                            currentPos[0]++;
+                            System.out.println("north corrected");
+                        }
                         maze[currentPos[0]][currentPos[1]] = 'O';
-                        Ychange = 1;
+                        Ychange = -1;
 
                         break;
                     case 2:
                         //south
                         currentPos[0]++;
+                        System.out.println("south");
+                        if(maze[currentPos[0]][currentPos[1]] == 'B'||maze[currentPos[0]][currentPos[1]] == 'X') {
+                            currentPos[0]--;
+                            System.out.println("south corrected");
+                        }
                         maze[currentPos[0]][currentPos[1]] = 'O';
-                        Ychange = -1;
+                        Ychange = 1;
 
                         break;
                     case 3:
-                        //east
-                        currentPos[1]--;
-                        maze[currentPos[0]][currentPos[1]] = 'O';
-                        Xchange = 1;
-
-                        break;
-                    case 4:
                         //west
-                        currentPos[1]++;
+                        currentPos[1]--;
+                        System.out.println("west");
+                        if(maze[currentPos[0]][currentPos[1]] == 'B' || maze[currentPos[0]][currentPos[1]] == 'X') {
+                            currentPos[1]++;
+                            System.out.println("west corrected");
+                        }
                         maze[currentPos[0]][currentPos[1]] = 'O';
                         Xchange = -1;
 
                         break;
+                    case 4:
+                        //east
+                        currentPos[1]++;
+                        System.out.println("east");
+                        if(maze[currentPos[0]][currentPos[1]] == 'B' || maze[currentPos[0]][currentPos[1]] == 'X') {
+                            currentPos[1]--;
+                            System.out.println("east corrected");
+                        }
+                        maze[currentPos[0]][currentPos[1]] = 'O';
+                        Xchange = 1;
+
+                        break;
                 }
-            }
+
+
         }
         int[] startPos = new int[2];
         startPos[0] = currentPos[0];
         startPos[1] = currentPos[1];
-
+        maze[startPos[0]][startPos[1]] = 'S';
         return startPos;
+
     }
 
 }
