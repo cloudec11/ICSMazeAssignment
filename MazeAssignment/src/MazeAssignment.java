@@ -95,26 +95,42 @@ public class MazeAssignment {
     static void drawMaze(char[][] maze){
         drawMazeBarriers(maze);
         int exitCoord[] = drawExit(maze);
-        int startCoord[] = drawPath(maze, exitCoord);
-
+        int startCoord[] = drawExitPath(maze, exitCoord);
+        int numPaths = (int) (Math.random()*(maze.length+maze[0].length)/2)+1;
+        System.out.println("numPaths " + numPaths);
+        for (int i = 0; i < numPaths; i++) {
+            int pathLength = (int) (Math.random()*Math.max(maze.length*2, maze[0].length)+1);
+            drawPath(pathLength, startCoord, maze);
+        }
+        drawWalls(maze);
     }
 
-    static int[] drawPath(char[][] maze, int[] exitCoord){
+    static int[] drawExitPath(char[][] maze, int[] exitCoord){
         int[] currentPos = new int[2];
 
         currentPos[0] = exitCoord[0];
         currentPos[1] = exitCoord[1];
 
+        drawFirstCell(maze, currentPos);
+
+        int pathLength = (int) (Math.random()*(maze.length+maze[0].length)+1);
+
+
+        drawPath(pathLength, currentPos, maze);
+
+        int[] startPos = new int[2];
+        startPos[0] = currentPos[0];
+        startPos[1] = currentPos[1];
+        maze[startPos[0]][startPos[1]] = 'S';
+        return startPos;
+
+    }
+
+    static void drawFirstCell(char[][]maze, int[]currentPos){
         int Xchange = 0;
         int Ychange = 0;
 
         int direction = 0;
-
-        int pathLength = (int) (Math.random()*Math.max(maze.length, maze[0].length)+1);
-        pathLength = 20;
-        System.out.println("Path length is " + pathLength);
-        System.out.print(currentPos[0] + ", " + currentPos[1]);
-        System.out.println();
         if(currentPos[0]== maze.length-1) {
             //if current y coordinate is the bottom
             currentPos[0]--;
@@ -146,11 +162,15 @@ public class MazeAssignment {
             Xchange = -1;
 
         }
+    }
 
+    static void drawPath(int pathLength, int[]currentPos, char [][]maze){
 
-        for (int i = 1; i < pathLength; i++) {
-            System.out.print(currentPos[0] + ", " + currentPos[1]);
-            System.out.println();
+        int Xchange = 0;
+        int Ychange = 0;
+
+        int direction = 0;
+        for (int i = 0; i < pathLength; i++) {
 
             int deltaXY = (int)(Math.random()*2)+1;
 
@@ -192,65 +212,69 @@ public class MazeAssignment {
             }
 
 
-                switch (direction) {
-                    case 1:
-                        //north
-                        currentPos[0]--;
-                        System.out.println("north");
-                        if(maze[currentPos[0]][currentPos[1]] == 'B'|| maze[currentPos[0]][currentPos[1]] == 'X') {
-                            currentPos[0]++;
-                            System.out.println("north corrected");
-                        }
-                        maze[currentPos[0]][currentPos[1]] = 'O';
-                        Ychange = -1;
-
-                        break;
-                    case 2:
-                        //south
+            switch (direction) {
+                case 1:
+                    //north
+                    Xchange = 0;
+                    currentPos[0]--;
+                    if(maze[currentPos[0]][currentPos[1]] == 'B'|| maze[currentPos[0]][currentPos[1]] == 'X') {
                         currentPos[0]++;
-                        System.out.println("south");
-                        if(maze[currentPos[0]][currentPos[1]] == 'B'||maze[currentPos[0]][currentPos[1]] == 'X') {
-                            currentPos[0]--;
-                            System.out.println("south corrected");
-                        }
+                    }
+                    if(maze[currentPos[0]][currentPos[1]]!='S')
                         maze[currentPos[0]][currentPos[1]] = 'O';
-                        Ychange = 1;
+                    Ychange = -1;
 
-                        break;
-                    case 3:
-                        //west
-                        currentPos[1]--;
-                        System.out.println("west");
-                        if(maze[currentPos[0]][currentPos[1]] == 'B' || maze[currentPos[0]][currentPos[1]] == 'X') {
-                            currentPos[1]++;
-                            System.out.println("west corrected");
-                        }
+                    break;
+                case 2:
+                    //south
+                    Xchange = 0;
+                    currentPos[0]++;
+                    if(maze[currentPos[0]][currentPos[1]] == 'B'||maze[currentPos[0]][currentPos[1]] == 'X') {
+                        currentPos[0]--;
+                    }
+                    if(maze[currentPos[0]][currentPos[1]]!='S')
                         maze[currentPos[0]][currentPos[1]] = 'O';
-                        Xchange = -1;
+                    Ychange = 1;
 
-                        break;
-                    case 4:
-                        //east
+                    break;
+                case 3:
+                    //west
+                    Ychange = 0;
+                    currentPos[1]--;
+                    if(maze[currentPos[0]][currentPos[1]] == 'B' || maze[currentPos[0]][currentPos[1]] == 'X') {
                         currentPos[1]++;
-                        System.out.println("east");
-                        if(maze[currentPos[0]][currentPos[1]] == 'B' || maze[currentPos[0]][currentPos[1]] == 'X') {
-                            currentPos[1]--;
-                            System.out.println("east corrected");
-                        }
+                    }
+                    if(maze[currentPos[0]][currentPos[1]]!='S')
                         maze[currentPos[0]][currentPos[1]] = 'O';
-                        Xchange = 1;
+                    Xchange = -1;
 
-                        break;
-                }
+                    break;
+                case 4:
+                    //east
+                    Ychange = 0;
+                    currentPos[1]++;
+                    if(maze[currentPos[0]][currentPos[1]] == 'B' || maze[currentPos[0]][currentPos[1]] == 'X') {
+                        currentPos[1]--;
+                    }
+                    if(maze[currentPos[0]][currentPos[1]]!='S')
+                        maze[currentPos[0]][currentPos[1]] = 'O';
+                    Xchange = 1;
 
+                    break;
+            }
 
         }
-        int[] startPos = new int[2];
-        startPos[0] = currentPos[0];
-        startPos[1] = currentPos[1];
-        maze[startPos[0]][startPos[1]] = 'S';
-        return startPos;
 
+    }
+
+    static void drawWalls(char[][]maze){
+        for (int i = 0; i < maze.length; i++) {
+            for (int j = 0; j < maze[i].length; j++) {
+                if(maze[i][j] != 'S' && maze[i][j]!='O' && maze[i][j] != 'X' && maze[i][j] != 'B'){
+                    maze[i][j] = 'B';
+                }
+            }
+        }
     }
 
 }
