@@ -1,12 +1,28 @@
 import java.io.*;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.StringTokenizer;
 
 public class MazeAssignment {
 
+    public static class Cell {
+        int x;
+        int y;
+    }
     static StringTokenizer st;
     static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-
+    static Cell exit = new Cell();
+    static Cell start = new Cell();
+    static ArrayList<ArrayList<Cell>> adjacent;
+    static ArrayList<Cell> visited = new ArrayList<>();
+    static ArrayList<Cell> path = new ArrayList<>();
+    static boolean north, south, east, west;
+    static int[][] graph;
+    static HashMap<Integer, ArrayList<Cell>> pathsMap = new HashMap<>();
+    static HashMap<Cell, Integer> cellDists = new HashMap<>();
+    static int dist = 0;
     public static void main(String[] args) throws IOException {
         System.out.println("Enter rows");
         int rows = readInt();
@@ -96,8 +112,7 @@ public class MazeAssignment {
         drawMazeBarriers(maze);
         int exitCoord[] = drawExit(maze);
         int startCoord[] = drawExitPath(maze, exitCoord);
-        int numPaths = (int) (Math.random()*(maze.length+maze[0].length)/2)+1;
-        System.out.println("numPaths " + numPaths);
+        int numPaths = (int) (Math.random()*(maze.length+maze[0].length)/2)+2;
         for (int i = 0; i < numPaths; i++) {
             int pathLength = (int) (Math.random()*Math.max(maze.length*2, maze[0].length)+1);
             drawPath(pathLength, startCoord, maze);
@@ -217,11 +232,9 @@ public class MazeAssignment {
                     //north
                     Xchange = 0;
                     currentPos[0]--;
-                    if(maze[currentPos[0]][currentPos[1]] == 'B'|| maze[currentPos[0]][currentPos[1]] == 'X') {
-                        currentPos[0]++;
-                    }
-                    if(maze[currentPos[0]][currentPos[1]]!='S')
+                    if(validCell(currentPos, maze)){
                         maze[currentPos[0]][currentPos[1]] = 'O';
+                    } else currentPos[0]++;
                     Ychange = -1;
 
                     break;
@@ -229,11 +242,9 @@ public class MazeAssignment {
                     //south
                     Xchange = 0;
                     currentPos[0]++;
-                    if(maze[currentPos[0]][currentPos[1]] == 'B'||maze[currentPos[0]][currentPos[1]] == 'X') {
-                        currentPos[0]--;
-                    }
-                    if(maze[currentPos[0]][currentPos[1]]!='S')
+                    if(validCell(currentPos, maze)){
                         maze[currentPos[0]][currentPos[1]] = 'O';
+                    } else currentPos[0]--;
                     Ychange = 1;
 
                     break;
@@ -241,11 +252,9 @@ public class MazeAssignment {
                     //west
                     Ychange = 0;
                     currentPos[1]--;
-                    if(maze[currentPos[0]][currentPos[1]] == 'B' || maze[currentPos[0]][currentPos[1]] == 'X') {
-                        currentPos[1]++;
-                    }
-                    if(maze[currentPos[0]][currentPos[1]]!='S')
+                    if(validCell(currentPos, maze)){
                         maze[currentPos[0]][currentPos[1]] = 'O';
+                    } else currentPos[1]++;
                     Xchange = -1;
 
                     break;
@@ -253,11 +262,9 @@ public class MazeAssignment {
                     //east
                     Ychange = 0;
                     currentPos[1]++;
-                    if(maze[currentPos[0]][currentPos[1]] == 'B' || maze[currentPos[0]][currentPos[1]] == 'X') {
-                        currentPos[1]--;
-                    }
-                    if(maze[currentPos[0]][currentPos[1]]!='S')
+                    if(validCell(currentPos, maze)){
                         maze[currentPos[0]][currentPos[1]] = 'O';
+                    } else currentPos[1]--;
                     Xchange = 1;
 
                     break;
@@ -265,6 +272,15 @@ public class MazeAssignment {
 
         }
 
+    }
+
+    static boolean validCell(int []currentPos, char[][]maze){
+        if(maze[currentPos[0]][currentPos[1]] == 'B' || maze[currentPos[0]][currentPos[1]] == 'X'){
+            return false;
+        }
+        else if(maze[currentPos[0]][currentPos[1]]=='S'){
+            return false;
+        } else return true;
     }
 
     static void drawWalls(char[][]maze){
@@ -277,4 +293,83 @@ public class MazeAssignment {
         }
     }
 
+    static int[][] createGraph (char[][]maze){
+        int nextCell = 3;
+        int[][]graph = new int[maze.length][maze[0].length];
+        for (int i = 0; i < maze.length; i++) {
+            System.out.println("i: "+i);
+            for (int j = 0; j < maze[0].length; j++) {
+                System.out.println("j: " +j);
+                if(maze[i][j]=='S')
+                {
+                    graph[i][j] = 1;
+                    start.x = j;
+                    start.y = i;
+                }
+                else if (maze[i][j]=='X')
+                {
+                    graph[i][j] = 2;
+                    exit.x = j;
+                    exit.y = i;
+                }
+                else if(maze[i][j]!='B') {
+                    graph[i][j] = nextCell;
+                    nextCell++;
+                }
+            }
+        }
+        return graph;
+    }
+    static ArrayList<ArrayList<Cell>> createAdjacent(int[][]graph){
+        ArrayList<ArrayList<Cell>> adj = new ArrayList<>();
+        for (int i = 0; i < graph.length * graph[0].length; i++) {
+            adj.add(new ArrayList<>());
+        }
+        for(int i = 0; i<graph.length; i++){
+            for(int j = 0; j< graph[0].length; j++){
+                int temp = graph[i][j];
+                if(temp!=0){
+                    //perform 4 direction check for adjacent
+                    check(graph, j, i);
+
+
+                    if(north) {
+                        Cell currentCell = new Cell();
+                        currentCell.x = j;
+                        currentCell.y = i-1;
+                        adj.get(graph[i][j]).add(currentCell);
+                    }
+                    if(south){
+                        Cell currentCell = new Cell();
+                        currentCell.x = j;
+                        currentCell.y = i+1;
+                        adj.get(graph[i][j]).add(currentCell);
+                    }if(east){
+                        Cell currentCell = new Cell();
+                        currentCell.x = j+1;
+                        currentCell.y = i;
+                        adj.get(graph[i][j]).add(currentCell);
+                    }if(west){
+                        Cell currentCell = new Cell();
+                        currentCell.x = j-1;
+                        currentCell.y = i;
+                        adj.get(graph[i][j]).add(currentCell);
+                    }
+                }
+            }
+        }
+        return adj;
+    }
+
+    static void check(int[][]graph, int x, int y){
+        north = false;
+        south = false;
+        east = false;
+        west = false;
+        if(graph[y-1][x]!=0) north = true;
+        if(graph[y+1][x]!=0) south = true;
+        if(graph[y][x+1]!=0) east = true;
+        if(graph[y][x-1]!=0) west = true;
+    }
+    
 }
