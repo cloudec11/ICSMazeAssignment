@@ -7,22 +7,17 @@ import java.util.StringTokenizer;
 
 public class MazeAssignment {
 
-    public static class Cell {
-        int x;
-        int y;
-    }
     static StringTokenizer st;
     static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-    static Cell exit = new Cell();
-    static Cell start = new Cell();
-    static ArrayList<ArrayList<Cell>> adjacent;
-    static ArrayList<Cell> visited = new ArrayList<>();
-    static ArrayList<Cell> path = new ArrayList<>();
+
     static boolean north, south, east, west;
     static int[][] graph;
-    static HashMap<Integer, ArrayList<Cell>> pathsMap = new HashMap<>();
-    static HashMap<Cell, Integer> cellDists = new HashMap<>();
-    static int dist = 0;
+    static boolean[] visited;
+    static ArrayList<ArrayList<Integer>> adj;
+    static ArrayList<Integer> shortest = new ArrayList<>();
+    static int min;
+    static int start = 1;
+    static int exit = 2;
     public static void main(String[] args) throws IOException {
         System.out.println("Enter rows");
         int rows = readInt();
@@ -39,6 +34,8 @@ public class MazeAssignment {
             }
             System.out.println();
         }
+
+        findPath(maze);
 
     }
 
@@ -141,42 +138,44 @@ public class MazeAssignment {
 
     }
 
+    static int[] findExitSide(char[][]maze){
+        int[] currentPos = new int[2];
+        int[] delta = new int[2];
+        delta[0] = 0;
+        delta[1] = 0;
+        for (int i = 0; i < maze.length; i++) {
+            for (int j = 0; j < maze[0].length; j++) {
+                if(maze[i][j]=='X'){
+                    currentPos[0] = i;
+                    currentPos[1] = j;
+                }
+            }
+        }
+
+        if(currentPos[0]== maze.length-1) {
+            delta[0] = -1;
+
+        } else if (currentPos[0]==0){
+            delta[0] = 1;
+
+        } else if (currentPos[1]==0){
+            delta[1] = 1;
+
+        } else if (currentPos[1]==maze[0].length-1){
+            delta[1] = -1;
+
+        }
+        return delta;
+    }
+
     static void drawFirstCell(char[][]maze, int[]currentPos){
         int Xchange = 0;
         int Ychange = 0;
-
         int direction = 0;
-        if(currentPos[0]== maze.length-1) {
-            //if current y coordinate is the bottom
-            currentPos[0]--;
-            //decrement because 2d array is highest index at the bottom (max row number is the bottom)
-            //if row number is at the bottom, going north means decrementing the row number aka the Ycoord
-            maze[currentPos[0]][currentPos[1]] = 'O';
-            Ychange = -1;
-
-        } else if (currentPos[0]==0){
-            //if y coordinate is at the top of the maze
-            currentPos[0]++;
-            //increment because 2d array is highest index at the bottom (max row number is the bottom)
-            //if row number is at the top, going south means incrementing the row number aka the Ycoord
-            maze[currentPos[0]][currentPos[1]] = 'O';
-            Ychange = 1;
-
-        } else if (currentPos[1]==0){
-            //if x coordinate is on the very left border
-            currentPos[1]++;
-            //if coloumn number is at the left, going east means incrementing the coloumn number aka the Xcoord
-            maze[currentPos[0]][currentPos[1]] = 'O';
-            Xchange = 1;
-
-        } else if (currentPos[1]==maze[0].length-1){
-            //if x coordinate is on the very right border
-            currentPos[1]--;
-            //if coloumn number is at the right, going west means decrementing the coloumn number aka the Xcoord
-            maze[currentPos[0]][currentPos[1]] = 'O';
-            Xchange = -1;
-
-        }
+        int[] delta = findExitSide(maze);
+        currentPos[0]+=delta[0];
+        currentPos[1]+=delta[1];
+        maze[currentPos[0]][currentPos[1]] = 'O';
     }
 
     static void drawPath(int pathLength, int[]currentPos, char [][]maze){
@@ -293,26 +292,44 @@ public class MazeAssignment {
         }
     }
 
+    static void findPath(char[][]maze){
+        visited = new boolean[maze.length* maze[0].length];
+        min = maze.length*maze[0].length; //there is at most, r * c total cells
+        graph = createGraph(maze);
+        adj = createList(graph);
+
+        for(int[] i:graph){
+            for (int g:i){
+                System.out.print(g+", ");
+            }
+            System.out.println();
+        }
+
+        if(adj.get(2).size()==0){
+            shortest.add(1);
+        } else if(adj.get(1).size()==0){
+            shortest.add(2);
+        } else traverse(1);
+
+    }
+    
+
     static int[][] createGraph (char[][]maze){
         int nextCell = 3;
+        int[] delta = findExitSide(maze);
         int[][]graph = new int[maze.length][maze[0].length];
         for (int i = 0; i < maze.length; i++) {
-            System.out.println("i: "+i);
             for (int j = 0; j < maze[0].length; j++) {
-                System.out.println("j: " +j);
                 if(maze[i][j]=='S')
                 {
                     graph[i][j] = 1;
-                    start.x = j;
-                    start.y = i;
                 }
                 else if (maze[i][j]=='X')
                 {
-                    graph[i][j] = 2;
-                    exit.x = j;
-                    exit.y = i;
+                    graph[i+delta[0]][j+delta[1]] = 2;
+                    graph[i][j] = 0;
                 }
-                else if(maze[i][j]!='B') {
+                else if(maze[i][j]=='O' && graph[i][j]!=2) {
                     graph[i][j] = nextCell;
                     nextCell++;
                 }
@@ -320,9 +337,10 @@ public class MazeAssignment {
         }
         return graph;
     }
-    static ArrayList<ArrayList<Cell>> createAdjacent(int[][]graph){
-        ArrayList<ArrayList<Cell>> adj = new ArrayList<>();
-        for (int i = 0; i < graph.length * graph[0].length; i++) {
+    static ArrayList<ArrayList<Integer>> createList(int[][]graph){
+        ArrayList<ArrayList<Integer>> adj = new ArrayList<>();
+        int maxCells = (graph.length * graph[0].length);
+        for (int i = 0; i < maxCells; i++) {
             adj.add(new ArrayList<>());
         }
         for(int i = 0; i<graph.length; i++){
@@ -330,30 +348,22 @@ public class MazeAssignment {
                 int temp = graph[i][j];
                 if(temp!=0){
                     //perform 4 direction check for adjacent
-                    check(graph, j, i);
+                    checkDir(graph, j, i);
 
 
                     if(north) {
-                        Cell currentCell = new Cell();
-                        currentCell.x = j;
-                        currentCell.y = i-1;
-                        adj.get(graph[i][j]).add(currentCell);
+
+                        adj.get(graph[i][j]).add(graph[i-1][j]);
                     }
                     if(south){
-                        Cell currentCell = new Cell();
-                        currentCell.x = j;
-                        currentCell.y = i+1;
-                        adj.get(graph[i][j]).add(currentCell);
+
+                        adj.get(graph[i][j]).add(graph[i+1][j]);
                     }if(east){
-                        Cell currentCell = new Cell();
-                        currentCell.x = j+1;
-                        currentCell.y = i;
-                        adj.get(graph[i][j]).add(currentCell);
+
+                        adj.get(graph[i][j]).add(graph[i][j+1]);
                     }if(west){
-                        Cell currentCell = new Cell();
-                        currentCell.x = j-1;
-                        currentCell.y = i;
-                        adj.get(graph[i][j]).add(currentCell);
+
+                        adj.get(graph[i][j]).add(graph[i][j-1]);
                     }
                 }
             }
@@ -361,7 +371,7 @@ public class MazeAssignment {
         return adj;
     }
 
-    static void check(int[][]graph, int x, int y){
+    static void checkDir(int[][]graph, int x, int y){
         north = false;
         south = false;
         east = false;
@@ -371,5 +381,39 @@ public class MazeAssignment {
         if(graph[y][x+1]!=0) east = true;
         if(graph[y][x-1]!=0) west = true;
     }
-    
+
+    static ArrayList<Integer> path = new ArrayList<>();
+
+    static void traverse(int node){
+
+        if(node==2){
+            if(path.size()<min){
+                path.add(node);
+                shortest.clear();
+                visited[2] = false;
+                for(int i = 0; i<path.size(); i++){
+                    shortest.add(path.get(i));
+                }
+                min = shortest.size();
+            }
+        }
+        else if(!visited[node]){
+
+            visited[node] = true;
+            path.add(node);
+            for(int i:adj.get(node)){
+                traverse(i);
+            }
+
+            if(path.size()!=0) {
+                //dont want last element or when path is empty
+                int index = path.indexOf(node);
+                int prevSize = path.size();
+                for (int i = index; i < prevSize; i++) {
+                    visited[path.get(index)] = false;
+                    path.remove(path.get(index));
+                }
+            }
+        }
+    }
 }
