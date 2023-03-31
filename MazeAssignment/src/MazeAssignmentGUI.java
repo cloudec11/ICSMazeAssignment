@@ -151,12 +151,6 @@ public class MazeAssignmentGUI implements ActionListener {
 			catch (Exception event) {
 				System.out.println();
 			}
-			for(char[] c : maze){
-                for(char x:c){
-                    System.out.print(x+" ");
-                }
-                System.out.println();
-            }
 			
 			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			frame.setLayout(new GridLayout(maze.length, maze[0].length));
