@@ -9,6 +9,9 @@ public class MazeAssignment {
     static boolean north, south, east, west;
     static int[][] graph;
     static boolean[] visited;
+
+    static boolean[][] genVis;
+    static int gen = 0;
     static ArrayList<ArrayList<Integer>> adj;
     static ArrayList<Integer> shortest = new ArrayList<>();
     static int min;
@@ -34,7 +37,7 @@ public class MazeAssignment {
         }
 
         while(true){
-            System.out.println("rety?");
+            System.out.println("regen maze?");
             int t = readInt();
             if(t==1) break;
             else{
@@ -72,11 +75,13 @@ public class MazeAssignment {
     }
 
     static void drawMazeBarriers(char[][]maze){
-
+        genVis = new boolean[maze.length][maze[0].length];
         for (int i = 0; i < maze.length; i++) {
             for (int j = 0; j < maze[i].length; j++) {
                 if(j==0 || j==maze[i].length-1 || i==0 || i== maze.length-1){
                     maze[i][j] = 'B';
+                    genVis[i][j] = true;
+                    gen++;
                 }
             }
         }
@@ -118,6 +123,8 @@ public class MazeAssignment {
             exitCoord[0] = exitCell;
             exitCoord[1] = maze[0].length-1;
         }
+        gen++;
+        genVis[exitCoord[0]][exitCoord[1]] = true;
         return exitCoord;
     }
 
@@ -127,18 +134,13 @@ public class MazeAssignment {
         int startCoord[] = drawExitPath(maze, exitCoord);
         lastCoord[0] = startCoord[0];
         lastCoord[1] = startCoord[1];
-        int numPaths = 2*maze.length;
-        for (int i = 0; i < numPaths; i++) {
-            int pathLength = (int) (Math.random()*Math.max(maze.length*2, maze[0].length)+ 1);
-            drawPath(pathLength, lastCoord, maze);
-        }
-        refineMaze(maze);
+
+        loopDraw(maze);
+
         drawWalls(maze);
 
     }
-    static void refineMaze(char[][]maze){
 
-    }
     static int[] drawExitPath(char[][] maze, int[] exitCoord){
         int[] currentPos = new int[2];
 
@@ -149,13 +151,13 @@ public class MazeAssignment {
 
         int pathLength = (int) (Math.random()*(maze.length+maze[0].length)+1);
 
-
         drawPath(pathLength, currentPos, maze);
 
         int[] startPos = new int[2];
         startPos[0] = currentPos[0];
         startPos[1] = currentPos[1];
         maze[startPos[0]][startPos[1]] = 'S';
+        genVis[startPos[0]][startPos[1]] = true;
         return startPos;
 
     }
@@ -211,67 +213,86 @@ public class MazeAssignment {
         currentPos[0]+=delta[0];
         currentPos[1]+=delta[1];
         maze[currentPos[0]][currentPos[1]] = 'O';
+        genVis[currentPos[0]][currentPos[1]] = true;
+    }
+
+    static void loopDraw(char[][]maze){
+        for (int i = 1; i < maze.length-1; i++) {
+            for (int j = 1; j < maze[0].length-1; j++) {
+                if(!genVis[i][j]){
+                    genVis[i][j] = true;
+                    int cur[] = new int[2];
+                    cur[0] = i;
+                    cur [1] = j;
+                    int pathLength = (int) (Math.random()*(maze.length+maze[0].length)+1);
+                    drawPath(pathLength, cur, maze);
+                }
+            }
+        }
     }
 
     static void drawPath(int pathLength, int[]currentPos, char [][]maze){
-
+        int moveMap[] = new int[2];
+//        if(validCell(currentPos, maze, moveMap)){
+//            maze[currentPos[0]][currentPos[1]] = 'O';
+//        }
         int Xchange = 0;
         int Ychange = 0;
 
         int direction = 0;
 
-        int changeXY = (int)(Math.random()*2)+1;
+        int changeXY = (int) (Math.random() * 2) + 1;
         for (int i = 0; i < pathLength; i++) {
 
-            if(i%2==0){
-                changeXY = (int)(Math.random()*2)+1;
+            if (i % 2 == 0) {
+                changeXY = (int) (Math.random() * 2) + 1;
             }
 
-            if(changeXY == 1){
+            if (changeXY == 1) {
                 //if deltaXY is 1, create path in Y
 
-                if(maze[currentPos[0]+Ychange][currentPos[1]]=='B'){
-                    if(Ychange==1) direction = 1;
-                    if(Ychange==-1) direction = 2;
+                if (maze[currentPos[0] + Ychange][currentPos[1]] == 'B') {
+                    if (Ychange == 1) direction = 1;
+                    if (Ychange == -1) direction = 2;
                 }
 
-                if(Ychange==0){
-                    int move = (int)(Math.random()*2+1);
-                    if(move==1) direction = 1;
-                    if(move==2) direction = 2;
+                if (Ychange == 0) {
+                    int move = (int) (Math.random() * 2 + 1);
+                    if (move == 1) direction = 1;
+                    if (move == 2) direction = 2;
                 }
 
-                if(Ychange==1) direction = 2;
-                if(Ychange==-1) direction = 1;
+                if (Ychange == 1) direction = 2;
+                if (Ychange == -1) direction = 1;
 
-            }
-            else if(changeXY == 2){
+            } else if (changeXY == 2) {
                 //if deltaXY is 2, create path in X
 
-                if(maze[currentPos[0]][currentPos[1]+Xchange]=='B'){
-                    if(Xchange==1) direction = 3;
-                    if(Xchange==-1) direction = 4;
+                if (maze[currentPos[0]][currentPos[1] + Xchange] == 'B') {
+                    if (Xchange == 1) direction = 3;
+                    if (Xchange == -1) direction = 4;
                 }
 
-                if(Xchange==0){
-                    int move = (int)(Math.random()*2+1);
-                    if(move==1) direction = 3;
-                    if(move==2) direction = 4;
+                if (Xchange == 0) {
+                    int move = (int) (Math.random() * 2 + 1);
+                    if (move == 1) direction = 3;
+                    if (move == 2) direction = 4;
                 }
 
-                if(Xchange==1) direction = 4;
-                if(Xchange==-1) direction = 3;
+                if (Xchange == 1) direction = 4;
+                if (Xchange == -1) direction = 3;
 
             }
 
-            int moveMap[] = new int[2];
+
             switch (direction) {
                 case 1:
                     //north
                     Xchange = 0;
                     currentPos[0]--;
                     moveMap[0] = -1;
-                    if(validCell(currentPos, maze, moveMap)){
+                    genVis[currentPos[0]][currentPos[1]] = true;
+                    if (validCell(currentPos, maze, moveMap)) {
                         maze[currentPos[0]][currentPos[1]] = 'O';
                     } else currentPos[0]++;
                     Ychange = -1;
@@ -282,7 +303,8 @@ public class MazeAssignment {
                     Xchange = 0;
                     currentPos[0]++;
                     moveMap[0] = 1;
-                    if(validCell(currentPos, maze, moveMap)){
+                    genVis[currentPos[0]][currentPos[1]] = true;
+                    if (validCell(currentPos, maze, moveMap)) {
                         maze[currentPos[0]][currentPos[1]] = 'O';
                     } else currentPos[0]--;
                     Ychange = 1;
@@ -293,7 +315,8 @@ public class MazeAssignment {
                     Ychange = 0;
                     currentPos[1]--;
                     moveMap[1] = -1;
-                    if(validCell(currentPos, maze, moveMap)){
+                    genVis[currentPos[0]][currentPos[1]] = true;
+                    if (validCell(currentPos, maze, moveMap)) {
                         maze[currentPos[0]][currentPos[1]] = 'O';
                     } else currentPos[1]++;
                     Xchange = -1;
@@ -304,7 +327,8 @@ public class MazeAssignment {
                     Ychange = 0;
                     currentPos[1]++;
                     moveMap[1] = 1;
-                    if(validCell(currentPos, maze, moveMap)){
+                    genVis[currentPos[0]][currentPos[1]] = true;
+                    if (validCell(currentPos, maze, moveMap)) {
                         maze[currentPos[0]][currentPos[1]] = 'O';
                     } else currentPos[1]--;
                     Xchange = 1;
@@ -382,8 +406,9 @@ public class MazeAssignment {
             shortest.remove(0);
             for (int i = 0; i < graph.length; i++) {
                 for (int j = 0; j < graph[0].length; j++) {
+                    if(maze[i][j]=='O') maze[i][j] = '+';
                     if(shortest.contains(graph[i][j])){
-                        maze[i][j] = '+';
+                        maze[i][j] = '-';
                     }
                 }
             }
