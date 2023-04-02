@@ -1,5 +1,4 @@
 import java.io.*;
-import java.lang.reflect.Array;
 import java.util.*;
 
 public class MazeAssignment {
@@ -128,12 +127,14 @@ public class MazeAssignment {
         int startCoord[] = drawExitPath(maze, exitCoord);
         lastCoord[0] = startCoord[0];
         lastCoord[1] = startCoord[1];
-        int numPaths = 100;
+        int numPaths = 2*maze.length;
         for (int i = 0; i < numPaths; i++) {
             int pathLength = (int) (Math.random()*Math.max(maze.length*2, maze[0].length)+ 1);
             drawPath(pathLength, lastCoord, maze);
         }
+        refineMaze(maze);
         drawWalls(maze);
+
     }
     static void refineMaze(char[][]maze){
 
@@ -219,14 +220,14 @@ public class MazeAssignment {
 
         int direction = 0;
 
-        int deltaXY = (int)(Math.random()*2)+1;
+        int changeXY = (int)(Math.random()*2)+1;
         for (int i = 0; i < pathLength; i++) {
 
             if(i%2==0){
-                deltaXY = (int)(Math.random()*2)+1;
+                changeXY = (int)(Math.random()*2)+1;
             }
 
-            if(deltaXY == 1){
+            if(changeXY == 1){
                 //if deltaXY is 1, create path in Y
 
                 if(maze[currentPos[0]+Ychange][currentPos[1]]=='B'){
@@ -244,7 +245,7 @@ public class MazeAssignment {
                 if(Ychange==-1) direction = 1;
 
             }
-            else if(deltaXY == 2){
+            else if(changeXY == 2){
                 //if deltaXY is 2, create path in X
 
                 if(maze[currentPos[0]][currentPos[1]+Xchange]=='B'){
@@ -381,9 +382,8 @@ public class MazeAssignment {
             shortest.remove(0);
             for (int i = 0; i < graph.length; i++) {
                 for (int j = 0; j < graph[0].length; j++) {
-                    if(maze[i][j]=='O') maze[i][j] = '+';
                     if(shortest.contains(graph[i][j])){
-                        maze[i][j] = '-';
+                        maze[i][j] = '+';
                     }
                 }
             }
