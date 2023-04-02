@@ -440,117 +440,29 @@ public class MazeAssignmentGUI implements ActionListener {
 	        }
 	    }
 
-	    static void drawPath(int pathLength, int[]currentPos, char [][]maze){
-	        int moveMap[] = new int[2];
-//	        if(validCell(currentPos, maze, moveMap)){
-//	            maze[currentPos[0]][currentPos[1]] = 'O';
-//	        }
-	        int Xchange = 0;
-	        int Ychange = 0;
+		static void drawPath(int pathLength, int[]currentPos, char [][]maze){
+		int[][] moves = {
+				{0, 1},
+				{0, -1},
+				{1, 0},
+				{-1, 0}
+		};
+		for (int i = 0; i < pathLength; i++) {
 
-	        int direction = 0;
+			int moveNum = (int)(Math.random()*3);
 
-	        int changeXY = (int) (Math.random() * 2) + 1;
-	        for (int i = 0; i < pathLength; i++) {
+			int [] temp = new int[2];
+			temp[0]  = currentPos[0] + moves[moveNum][0];
+			temp[1] = currentPos[1] + moves[moveNum][1];
+			if(validCell(temp, maze, moves[moveNum])){
+				currentPos[0]+=moves[moveNum][0];
+				currentPos[1]+=moves[moveNum][1];
+				maze[currentPos[0]][currentPos[1]] = 'O';
+			}
 
-	            if (i % 2 == 0) {
-	                changeXY = (int) (Math.random() * 2) + 1;
-	            }
+		}
 
-	            if (changeXY == 1) {
-	                //if deltaXY is 1, create path in Y
-
-	                if (maze[currentPos[0] + Ychange][currentPos[1]] == 'B') {
-	                    if (Ychange == 1) direction = 1;
-	                    if (Ychange == -1) direction = 2;
-	                }
-
-	                if (Ychange == 0) {
-	                    int move = (int) (Math.random() * 2 + 1);
-	                    if (move == 1) direction = 1;
-	                    if (move == 2) direction = 2;
-	                }
-
-	                if (Ychange == 1) direction = 2;
-	                if (Ychange == -1) direction = 1;
-
-	            } else if (changeXY == 2) {
-	                //if deltaXY is 2, create path in X
-
-	                if (maze[currentPos[0]][currentPos[1] + Xchange] == 'B') {
-	                    if (Xchange == 1) direction = 3;
-	                    if (Xchange == -1) direction = 4;
-	                }
-
-	                if (Xchange == 0) {
-	                    int move = (int) (Math.random() * 2 + 1);
-	                    if (move == 1) direction = 3;
-	                    if (move == 2) direction = 4;
-	                }
-
-	                if (Xchange == 1) direction = 4;
-	                if (Xchange == -1) direction = 3;
-
-	            }
-
-
-	            switch (direction) {
-	                case 1:
-	                    //north
-	                    Xchange = 0;
-	                    currentPos[0]--;
-	                    moveMap[0] = -1;
-	                    genVis[currentPos[0]][currentPos[1]] = true;
-	                    if (validCell(currentPos, maze, moveMap)) {
-	                        maze[currentPos[0]][currentPos[1]] = 'O';
-	                    } else currentPos[0]++;
-	                    Ychange = -1;
-
-	                    break;
-	                case 2:
-	                    //south
-	                    Xchange = 0;
-	                    currentPos[0]++;
-	                    moveMap[0] = 1;
-	                    genVis[currentPos[0]][currentPos[1]] = true;
-	                    if (validCell(currentPos, maze, moveMap)) {
-	                        maze[currentPos[0]][currentPos[1]] = 'O';
-	                    } else currentPos[0]--;
-	                    Ychange = 1;
-
-	                    break;
-	                case 3:
-	                    //west
-	                    Ychange = 0;
-	                    currentPos[1]--;
-	                    moveMap[1] = -1;
-	                    genVis[currentPos[0]][currentPos[1]] = true;
-	                    if (validCell(currentPos, maze, moveMap)) {
-	                        maze[currentPos[0]][currentPos[1]] = 'O';
-	                    } else currentPos[1]++;
-	                    Xchange = -1;
-
-	                    break;
-	                case 4:
-	                    //east
-	                    Ychange = 0;
-	                    currentPos[1]++;
-	                    moveMap[1] = 1;
-	                    genVis[currentPos[0]][currentPos[1]] = true;
-	                    if (validCell(currentPos, maze, moveMap)) {
-	                        maze[currentPos[0]][currentPos[1]] = 'O';
-	                    } else currentPos[1]--;
-	                    Xchange = 1;
-
-	                    break;
-	            }
-
-	        }
-
-	        lastCoord[0] = currentPos[0];
-	        lastCoord[1] = currentPos[1];
-
-	    }
+	}
 	    static boolean validCell(int []currentPos, char[][]maze, int[]moveMap){
 	        boolean notOnBorder = notBorder(currentPos, maze);
 	        if(notOnBorder){
