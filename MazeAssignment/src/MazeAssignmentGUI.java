@@ -167,39 +167,43 @@ public class MazeAssignmentGUI implements ActionListener {
 			frame.setVisible(true);
 		}
 		else if (command.equals("Enter")) {
-			rows = Integer.parseInt(RowInput.getText());
-			cols = Integer.parseInt(ColumnInput.getText());
-			panel.remove(RowLabel);
-			panel.remove(ColumnLabel);
-			panel.remove(RowInput);
-			panel.remove(ColumnInput);
-			panel.remove(DoneButton);
-			frame.remove(panel);
-			RowLabel.setVisible(false);
-			ColumnLabel.setVisible(false);
-			RowInput.setVisible(false);
-			ColumnInput.setVisible(false);
-			DoneButton.setVisible(false);
-			panel.setVisible(false);
-			char [][] maze = new char[rows][cols];
-			drawMaze(maze);
-			findPath(maze);
+			try {
+				rows = Integer.parseInt(RowInput.getText());
+				cols = Integer.parseInt(ColumnInput.getText());
+				panel.remove(RowLabel);
+				panel.remove(ColumnLabel);
+				panel.remove(RowInput);
+				panel.remove(ColumnInput);
+				panel.remove(DoneButton);
+				frame.remove(panel);
+				RowLabel.setVisible(false);
+				ColumnLabel.setVisible(false);
+				RowInput.setVisible(false);
+				ColumnInput.setVisible(false);
+				DoneButton.setVisible(false);
+				panel.setVisible(false);
+				char[][] maze = new char[rows][cols];
+				drawMaze(maze);
+				findPath(maze);
 
-			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-			frame.setLayout(new GridLayout(maze.length, maze[0].length));
-			frame.setLocationRelativeTo(null);
-			for (int row = 0; row < maze.length; row++) {
-				for (int col = 0; col <= maze[0].length-1; col++) {
-					JLabel label = makeLabel(maze[row][col]);
-					frame.add(label);
+				frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+				frame.setLayout(new GridLayout(maze.length, maze[0].length));
+				frame.setLocationRelativeTo(null);
+				for (int row = 0; row < maze.length; row++) {
+					for (int col = 0; col <= maze[0].length - 1; col++) {
+						JLabel label = makeLabel(maze[row][col]);
+						frame.add(label);
+					}
 				}
+
+
+				frame.pack();
+				frame.setVisible(true);
+			}catch(NumberFormatException error){
+				//text label "enter integerws only"
 			}
-
-
-			frame.pack();
-			frame.setVisible(true);
-
 		}
+
 	}
 
 	public JLabel makeLabel(char c) {
