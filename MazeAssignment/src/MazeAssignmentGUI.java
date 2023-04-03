@@ -14,16 +14,23 @@ public class MazeAssignmentGUI implements ActionListener {
 	static char pathChar = 'O';
 	static char startChar = 'S';
 	static char exitChar = 'X';
-	static boolean[][] cellChecked;
-	static int numCellsChecked = 0;
-	static ArrayList<ArrayList<Integer>> adjacencyList;
+	static boolean[][] genVis;
+	static int gen = 0;
+	static ArrayList<ArrayList<Integer>> adj;
 	static ArrayList<Integer> shortest = new ArrayList<>();
-	static int shortestPathLength;
+	static int min;
+	static int[] lastCoord = new int[2];
+	static char mainMaze[][]; 
 
 	static JButton OwnMazeButton = new JButton("Make your own Maze");
 	static JButton FileMazeButton = new JButton("Open A File");
 	static JButton DoneButton = new JButton("Enter");
 	static JButton FileDoneButton = new JButton("Enter File");
+	static JButton RandomMaze  = new JButton("Create Maze with no Guaranteed Path");
+	static JButton FindPath = new JButton("Find Shortest Path");
+	static JButton Legend = new JButton("Open Legend");
+	static JButton ReturnMaze = new JButton("Return to Maze");
+	static JButton RegenerateMaze = new JButton("Make New Maze");
 
 
 	static JTextField RowInput = new JTextField();
@@ -33,6 +40,7 @@ public class MazeAssignmentGUI implements ActionListener {
 	static JLabel RowLabel = new JLabel("Enter how many rows you want in your maze");
 	static JLabel ColumnLabel = new JLabel("Enter how many columns you want in your maze");
 	static JLabel FileLabel = new JLabel("Enter the File Name");
+	static JLabel LegendLabel = new JLabel("Blue = Border           Red  = Starting Point            Green = Exit              White = Open Path          Yellow = Starting Point    ");
 
 
 
@@ -49,6 +57,7 @@ public class MazeAssignmentGUI implements ActionListener {
 		RowLabel.setFont(new Font("Arial", Font.PLAIN, 20));
 		ColumnLabel.setFont(new Font("Arial", Font.PLAIN, 20));
 		FileLabel.setFont(new Font("Arial", Font.PLAIN, 20));
+		LegendLabel.setFont(new Font("Arial", Font.PLAIN, 20));
 
 		OwnMazeButton.setBounds(300, 350, 500, 300);
 		FileMazeButton.setBounds(1100, 350, 500, 300);
@@ -58,6 +67,11 @@ public class MazeAssignmentGUI implements ActionListener {
 		FileMazeButton.addActionListener(this);
 		DoneButton.addActionListener(this);
 		FileDoneButton.addActionListener(this);
+		RandomMaze.addActionListener(this);
+		FindPath.addActionListener(this);
+		Legend.addActionListener(this);
+		ReturnMaze.addActionListener(this);
+		RegenerateMaze.addActionListener(this);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 
@@ -83,12 +97,15 @@ public class MazeAssignmentGUI implements ActionListener {
 			ColumnLabel.setBounds(1200, 100, 500, 500);
 			ColumnInput.setBounds(1160, 380, 500, 50);
 			DoneButton.setBounds(750, 500, 500, 200);
+			RandomMaze.setBounds(750, 750, 500, 200);
 
 			panel.add(DoneButton);
 			panel.add(RowLabel);
 			panel.add(RowInput);
 			panel.add(ColumnLabel);
 			panel.add(ColumnInput);
+			panel.add(RandomMaze);
+			
 			frame.setSize(2000, 999);
 			frame.setSize(2000, 1000);
 
@@ -160,48 +177,135 @@ public class MazeAssignmentGUI implements ActionListener {
 				System.out.println();
 			}
 		}
-		else if (command.equals("Enter")) {
-			try {
-				rows = Integer.parseInt(RowInput.getText());
-				cols = Integer.parseInt(ColumnInput.getText());
-				panel.remove(RowLabel);
-				panel.remove(ColumnLabel);
-				panel.remove(RowInput);
-				panel.remove(ColumnInput);
-				panel.remove(DoneButton);
-				frame.remove(panel);
-				RowLabel.setVisible(false);
-				ColumnLabel.setVisible(false);
-				RowInput.setVisible(false);
-				ColumnInput.setVisible(false);
-				DoneButton.setVisible(false);
-				panel.setVisible(false);
-				char[][] maze = new char[rows][cols];
-				drawMaze(maze);
-				findPath(maze);
-
-				frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-				frame.setLayout(new GridLayout(maze.length, maze[0].length));
-				frame.setLocationRelativeTo(null);
-				for (int row = 0; row < maze.length; row++) {
-					for (int col = 0; col <= maze[0].length - 1; col++) {
-						JLabel label = makeLabel(maze[row][col]);
-						frame.add(label);
-					}
+		else if (command.equals("Create Maze with no Guaranteed Path")) {
+			rows = Integer.parseInt(RowInput.getText());
+			cols = Integer.parseInt(ColumnInput.getText());
+			panel.remove(RowLabel);
+			panel.remove(ColumnLabel);
+			panel.remove(RowInput);
+			panel.remove(ColumnInput);
+			panel.remove(DoneButton);
+			frame.remove(panel);
+			RowLabel.setVisible(false);
+			ColumnLabel.setVisible(false);
+			RowInput.setVisible(false);
+			ColumnInput.setVisible(false);
+			DoneButton.setVisible(false);
+			panel.setVisible(false);
+			char [][] maze = new char[rows][cols];
+			noGuranteePathMaze(maze);
+			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			frame.setLayout(new GridLayout(maze.length, maze[0].length));
+			frame.setLocationRelativeTo(null);
+			for (int row = 0; row < maze.length; row++) {
+				for (int col = 0; col <= maze[0].length-1; col++) {
+					JLabel label = makeLabel(maze[row][col]);
+					frame.add(label);
 				}
-
-
-				frame.pack();
-				frame.setVisible(true);
-			}catch(NumberFormatException error){
-				//text label "enter integerws only"
 			}
-		}
 
+
+			frame.pack();
+			frame.setVisible(true);
+			
+			
+		}
+		else if (command.equals("Enter")) {
+			rows = Integer.parseInt(RowInput.getText());
+			cols = Integer.parseInt(ColumnInput.getText());
+			panel.remove(RowLabel);
+			panel.remove(ColumnLabel);
+			panel.remove(RowInput);
+			panel.remove(ColumnInput);
+			panel.remove(DoneButton);
+			frame.remove(panel);
+			RowLabel.setVisible(false);
+			ColumnLabel.setVisible(false);
+			RowInput.setVisible(false);
+			ColumnInput.setVisible(false);
+			DoneButton.setVisible(false);
+			panel.setVisible(false);
+			mainMaze = new char[rows][cols];
+			drawMaze(mainMaze);
+
+
+			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			frame.setLayout(new GridLayout(mainMaze.length + 1, mainMaze[0].length));
+			frame.setLocationRelativeTo(null);
+			for (int row = 0; row < mainMaze.length; row++) {
+				for (int col = 0; col <= mainMaze[0].length-1; col++) {
+					JLabel label = makeLabel(mainMaze[row][col]);
+					frame.add(label);
+				}
+			}
+			frame.add(FindPath);
+			frame.add(Legend);
+			
+
+			frame.pack();
+			frame.setVisible(true);
+
+		}
+		else if (command.equals("Find Shortest Path")) {
+			char tempMaze[][] = new char[mainMaze.length][mainMaze[0].length];
+			for (int i = 0; i < tempMaze.length; i++) {
+				for (int j = 0; j < tempMaze[0].length; j++) {
+					tempMaze[i][j] = mainMaze[i][j];
+				}
+			}
+			
+			frame.getContentPane().removeAll();
+			frame.setSize(2000, 999);
+			frame.setSize(2000, 1000);
+			findPath(tempMaze);
+
+			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			frame.setLayout(new GridLayout(tempMaze.length + 1, tempMaze[0].length));
+			frame.setLocationRelativeTo(null);
+			for (int row = 0; row < tempMaze.length; row++) {
+				for (int col = 0; col <= tempMaze[0].length-1; col++) {
+					JLabel label = makeLabel(tempMaze[row][col]);
+					frame.add(label);
+				}
+			}
+			frame.add(FindPath);
+			frame.add(Legend);
+			frame.pack();
+		}
+		else if (command.equals("Open Legend")) {
+			frame.getContentPane().removeAll();
+			frame.setSize(2000, 999);
+			frame.setSize(2000, 1000);
+
+			frame.add(LegendLabel);
+			frame.add(ReturnMaze);
+		}
+		else if (command.equals("Return to Maze")) {
+			frame.getContentPane().removeAll();
+			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			frame.setLayout(new GridLayout(mainMaze.length + 1, mainMaze[0].length));
+			frame.setLocationRelativeTo(null);
+			for (int row = 0; row < mainMaze.length; row++) {
+				for (int col = 0; col <= mainMaze[0].length-1; col++) {
+					JLabel label = makeLabel(mainMaze[row][col]);
+					frame.add(label);
+				}
+			}
+			frame.add(FindPath);
+			frame.add(Legend);
+			
+
+			frame.pack();
+			frame.setVisible(true);
+		}
+		else if (command.equals("Make New Maze")) {
+			frame.getContentPane().removeAll();
+			
+		}
 	}
+	
 
 	public JLabel makeLabel(char c) {
-
 		JLabel label= new JLabel();
 		label.setHorizontalAlignment(JLabel.CENTER);
 		label.setPreferredSize(new Dimension(40, 40));
@@ -256,8 +360,6 @@ public class MazeAssignmentGUI implements ActionListener {
 			for (int j = 0; j < maze[0].length; j++) {
 				c = input.findInLine(".").charAt(0);
 				maze[i][j] = c;
-				if(c==startChar) hasStart = true;
-				if(c==exitChar) hasExit = true;
 			}
 		}
 
@@ -265,13 +367,13 @@ public class MazeAssignmentGUI implements ActionListener {
 
 
 	static void drawMazeBarriers(char[][]maze){
-		cellChecked = new boolean[maze.length][maze[0].length];
+		genVis = new boolean[maze.length][maze[0].length];
 		for (int i = 0; i < maze.length; i++) {
 			for (int j = 0; j < maze[i].length; j++) {
 				if(j==0 || j==maze[i].length-1 || i==0 || i== maze.length-1){
 					maze[i][j] = borderChar;
-					cellChecked[i][j] = true;
-					numCellsChecked++;
+					genVis[i][j] = true;
+					gen++;
 				}
 			}
 		}
@@ -313,9 +415,8 @@ public class MazeAssignmentGUI implements ActionListener {
 			exitCoord[0] = exitCell;
 			exitCoord[1] = maze[0].length-1;
 		}
-		numCellsChecked++;
-		cellChecked[exitCoord[0]][exitCoord[1]] = true;
-		hasExit = true;
+		gen++;
+		genVis[exitCoord[0]][exitCoord[1]] = true;
 		return exitCoord;
 	}
 
@@ -323,7 +424,8 @@ public class MazeAssignmentGUI implements ActionListener {
 		drawMazeBarriers(maze);
 		int exitCoord[] = drawExit(maze);
 		int startCoord[] = drawExitPath(maze, exitCoord);
-
+		lastCoord[0] = startCoord[0];
+		lastCoord[1] = startCoord[1];
 
 		loopDraw(maze);
 
@@ -360,8 +462,7 @@ public class MazeAssignmentGUI implements ActionListener {
 		startPos[0] = currentPos[0];
 		startPos[1] = currentPos[1];
 		maze[startPos[0]][startPos[1]] = startChar;
-		hasStart = true;
-		cellChecked[startPos[0]][startPos[1]] = true;
+		genVis[startPos[0]][startPos[1]] = true;
 		return startPos;
 
 	}
@@ -417,14 +518,14 @@ public class MazeAssignmentGUI implements ActionListener {
 		currentPos[0]+=delta[0];
 		currentPos[1]+=delta[1];
 		maze[currentPos[0]][currentPos[1]] = pathChar;
-		cellChecked[currentPos[0]][currentPos[1]] = true;
+		genVis[currentPos[0]][currentPos[1]] = true;
 	}
 
 	static void loopDraw(char[][]maze){
 		for (int i = 1; i < maze.length-1; i++) {
 			for (int j = 1; j < maze[0].length-1; j++) {
-				if(!cellChecked[i][j]){
-					cellChecked[i][j] = true;
+				if(!genVis[i][j]){
+					genVis[i][j] = true;
 					int cur[] = new int[2];
 					cur[0] = i;
 					cur [1] = j;
@@ -500,40 +601,33 @@ public class MazeAssignmentGUI implements ActionListener {
 
 	static void findPath(char[][]maze){
 
-		if(!hasExit){
-			//no exit
+		int[] startPos = findStartCell(maze);
+		boolean startExitConnected = isStartExitConnected(maze, startPos[1], startPos[0]);
+		if(startExitConnected){
+			maze[startPos[0]][startPos[1]] = '+';
 		}
-		if(!hasStart){
-			//no start
-		}
-		if(hasExit && hasStart) {
-			int[] startPos = findStartCell(maze);
-			boolean startExitConnected = isStartExitConnected(maze, startPos[1], startPos[0]);
-			if (startExitConnected) {
-				maze[startPos[0]][startPos[1]] = '+';
+		else {
+			visited = new boolean[maze.length * maze[0].length];
+			min = maze.length * maze[0].length; //there is at most, r * c total cells
+			graph = createGraph(maze);
+			adj = createList(graph);
+
+
+			if (adj.get(2).size() == 0) {
+				shortest.add(1);
+			} else if (adj.get(1).size() == 0) {
+				shortest.add(2);
+			} else traverse(1);
+
+			if(shortest.size()==0){
+				//no path
+				//Create text field that says "no path found"
 			} else {
-				visited = new boolean[maze.length * maze[0].length];
-				shortestPathLength = maze.length * maze[0].length; //there is at most, r * c total cells
-				graph = createGraph(maze);
-				adjacencyList = createList(graph);
-
-
-				if (adjacencyList.get(2).size() == 0) {
-					shortest.add(1);
-				} else if (adjacencyList.get(1).size() == 0) {
-					shortest.add(2);
-				} else traverse(1);
-
-				if (shortest.size() == 0) {
-					//no path
-					//Create text field that says "no path found"
-				} else {
-					shortest.remove(0);
-					for (int i = 0; i < graph.length; i++) {
-						for (int j = 0; j < graph[0].length; j++) {
-							if (shortest.contains(graph[i][j])) {
-								maze[i][j] = '+';
-							}
+				shortest.remove(0);
+				for (int i = 0; i < graph.length; i++) {
+					for (int j = 0; j < graph[0].length; j++) {
+						if (shortest.contains(graph[i][j])) {
+							maze[i][j] = '+';
 						}
 					}
 				}
@@ -633,21 +727,21 @@ public class MazeAssignmentGUI implements ActionListener {
 
 	static void traverse(int node){
 		if(node==2){
-			if(path.size()< shortestPathLength){
+			if(path.size()<min){
 				path.add(node);
 				shortest.clear();
 				visited[2] = false;
 				for(int i = 0; i<path.size(); i++){
 					shortest.add(path.get(i));
 				}
-				shortestPathLength = shortest.size();
+				min = shortest.size();
 			}
 		}
 		else if(!visited[node]){
 
 			visited[node] = true;
 			path.add(node);
-			for(int i: adjacencyList.get(node)){
+			for(int i:adj.get(node)){
 				traverse(i);
 			}
 
@@ -663,6 +757,5 @@ public class MazeAssignmentGUI implements ActionListener {
 		}
 	}
 }
-
 
 
