@@ -14,9 +14,9 @@ public class MazeAssignmentGUI implements ActionListener {
 	static char pathChar = 'O';
 	static char startChar = 'S';
 	static char exitChar = 'X';
-	static boolean[][] genVis;
-	static int gen = 0;
-	static ArrayList<ArrayList<Integer>> adj;
+	static boolean[][] cellChecked;
+	static int numCellChecked = 0;
+	static ArrayList<ArrayList<Integer>> adjacencyList;
 	static ArrayList<Integer> shortest = new ArrayList<>();
 	static int min;
 	static int[] lastCoord = new int[2];
@@ -367,13 +367,13 @@ public class MazeAssignmentGUI implements ActionListener {
 
 
 	static void drawMazeBarriers(char[][]maze){
-		genVis = new boolean[maze.length][maze[0].length];
+		cellChecked = new boolean[maze.length][maze[0].length];
 		for (int i = 0; i < maze.length; i++) {
 			for (int j = 0; j < maze[i].length; j++) {
 				if(j==0 || j==maze[i].length-1 || i==0 || i== maze.length-1){
 					maze[i][j] = borderChar;
-					genVis[i][j] = true;
-					gen++;
+					cellChecked[i][j] = true;
+					numCellChecked++;
 				}
 			}
 		}
@@ -415,8 +415,8 @@ public class MazeAssignmentGUI implements ActionListener {
 			exitCoord[0] = exitCell;
 			exitCoord[1] = maze[0].length-1;
 		}
-		gen++;
-		genVis[exitCoord[0]][exitCoord[1]] = true;
+		numCellChecked++;
+		cellChecked[exitCoord[0]][exitCoord[1]] = true;
 		return exitCoord;
 	}
 
@@ -462,7 +462,7 @@ public class MazeAssignmentGUI implements ActionListener {
 		startPos[0] = currentPos[0];
 		startPos[1] = currentPos[1];
 		maze[startPos[0]][startPos[1]] = startChar;
-		genVis[startPos[0]][startPos[1]] = true;
+		cellChecked[startPos[0]][startPos[1]] = true;
 		return startPos;
 
 	}
@@ -518,14 +518,14 @@ public class MazeAssignmentGUI implements ActionListener {
 		currentPos[0]+=delta[0];
 		currentPos[1]+=delta[1];
 		maze[currentPos[0]][currentPos[1]] = pathChar;
-		genVis[currentPos[0]][currentPos[1]] = true;
+		cellChecked[currentPos[0]][currentPos[1]] = true;
 	}
 
 	static void loopDraw(char[][]maze){
 		for (int i = 1; i < maze.length-1; i++) {
 			for (int j = 1; j < maze[0].length-1; j++) {
-				if(!genVis[i][j]){
-					genVis[i][j] = true;
+				if(!cellChecked[i][j]){
+					cellChecked[i][j] = true;
 					int cur[] = new int[2];
 					cur[0] = i;
 					cur [1] = j;
@@ -610,12 +610,12 @@ public class MazeAssignmentGUI implements ActionListener {
 			visited = new boolean[maze.length * maze[0].length];
 			min = maze.length * maze[0].length; //there is at most, r * c total cells
 			graph = createGraph(maze);
-			adj = createList(graph);
+			adjacencyList = createList(graph);
 
 
-			if (adj.get(2).size() == 0) {
+			if (adjacencyList.get(2).size() == 0) {
 				shortest.add(1);
-			} else if (adj.get(1).size() == 0) {
+			} else if (adjacencyList.get(1).size() == 0) {
 				shortest.add(2);
 			} else traverse(1);
 
@@ -741,7 +741,7 @@ public class MazeAssignmentGUI implements ActionListener {
 
 			visited[node] = true;
 			path.add(node);
-			for(int i:adj.get(node)){
+			for(int i: adjacencyList.get(node)){
 				traverse(i);
 			}
 
