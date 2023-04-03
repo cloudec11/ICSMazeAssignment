@@ -5,11 +5,9 @@ import java.io.*;
 import java.util.*;
 
 public class MazeAssignmentGUI implements ActionListener {
-	static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-	static StringTokenizer st;
-
 
 	static boolean north, south, east, west;
+	static boolean hasStart, hasExit;
 	static int[][] graph;
 	static boolean[] visited;
 	static char borderChar = 'B';
@@ -225,16 +223,6 @@ public class MazeAssignmentGUI implements ActionListener {
 		label.setBorder(BorderFactory.createLineBorder(Color.WHITE, 1));
 		return label;
 	}
-	public static String input() throws IOException {
-		//method to split input into tokens to allow faster input
-		while (st == null || !st.hasMoreTokens()) {
-			//while there no tokens or the string tokenizer does not have more tokens left
-			st = new StringTokenizer(br.readLine().trim());
-			//string tokenizer set to read line and trim whitespace
-		}
-		return st.nextToken();
-		//returns the next token
-	}
 	public static void readChars(File file) throws IOException{
 		Scanner input = new Scanner(file);
 		input.nextLine();
@@ -276,9 +264,6 @@ public class MazeAssignmentGUI implements ActionListener {
 
 	}
 
-	public static int readInt() throws IOException {
-		return Integer.parseInt(input());
-	}
 
 	static void drawMazeBarriers(char[][]maze){
 		genVis = new boolean[maze.length][maze[0].length];
@@ -347,6 +332,18 @@ public class MazeAssignmentGUI implements ActionListener {
 
 	}
 
+	static void noGuranteePathMaze(char[][]maze){
+		drawMazeBarriers(maze);
+
+		loopDraw(maze);
+		selectStart(maze);
+		drawWalls(maze);
+	}
+	static void selectStart(char[][]maze){
+		int y = (int)(Math.random()* maze.length-1)+1;
+		int x = (int)(Math.random()*maze[0].length)+1;
+		maze[y][x] = startChar;
+	}
 	static int[] drawExitPath(char[][] maze, int[] exitCoord){
 		int[] currentPos = new int[2];
 
@@ -520,12 +517,16 @@ public class MazeAssignmentGUI implements ActionListener {
 				shortest.add(2);
 			} else traverse(1);
 
-			System.out.println();
-			shortest.remove(0);
-			for (int i = 0; i < graph.length; i++) {
-				for (int j = 0; j < graph[0].length; j++) {
-					if(shortest.contains(graph[i][j])){
-						maze[i][j] = '+';
+			if(shortest.size()==0){
+				//no path
+				//Create text field that says "no path found"
+			} else {
+				shortest.remove(0);
+				for (int i = 0; i < graph.length; i++) {
+					for (int j = 0; j < graph[0].length; j++) {
+						if (shortest.contains(graph[i][j])) {
+							maze[i][j] = '+';
+						}
 					}
 				}
 			}
