@@ -16,7 +16,7 @@ public class MazeAssignmentGUI implements ActionListener {
 	static char exitChar = 'X';
 	static boolean[][] cellChecked;
 	static int numCellsChecked = 0;
-	static ArrayList<ArrayList<Integer>> adj;
+	static ArrayList<ArrayList<Integer>> adjacencyList;
 	static ArrayList<Integer> shortest = new ArrayList<>();
 	static int shortestPathLength;
 
@@ -317,6 +317,7 @@ public class MazeAssignmentGUI implements ActionListener {
 		}
 		numCellsChecked++;
 		cellChecked[exitCoord[0]][exitCoord[1]] = true;
+		hasExit = true;
 		return exitCoord;
 	}
 
@@ -334,7 +335,7 @@ public class MazeAssignmentGUI implements ActionListener {
 
 	static void noGuranteePathMaze(char[][]maze){
 		drawMazeBarriers(maze);
-
+		int exitCoord[]=drawExit(maze);
 		loopDraw(maze);
 		selectStart(maze);
 		drawWalls(maze);
@@ -343,6 +344,7 @@ public class MazeAssignmentGUI implements ActionListener {
 		int y = (int)(Math.random()* maze.length-1)+1;
 		int x = (int)(Math.random()*maze[0].length)+1;
 		maze[y][x] = startChar;
+		hasStart = true;
 	}
 	static int[] drawExitPath(char[][] maze, int[] exitCoord){
 		int[] currentPos = new int[2];
@@ -360,6 +362,7 @@ public class MazeAssignmentGUI implements ActionListener {
 		startPos[0] = currentPos[0];
 		startPos[1] = currentPos[1];
 		maze[startPos[0]][startPos[1]] = startChar;
+		hasStart = true;
 		cellChecked[startPos[0]][startPos[1]] = true;
 		return startPos;
 
@@ -514,12 +517,12 @@ public class MazeAssignmentGUI implements ActionListener {
 				visited = new boolean[maze.length * maze[0].length];
 				shortestPathLength = maze.length * maze[0].length; //there is at most, r * c total cells
 				graph = createGraph(maze);
-				adj = createList(graph);
+				adjacencyList = createList(graph);
 
 
-				if (adj.get(2).size() == 0) {
+				if (adjacencyList.get(2).size() == 0) {
 					shortest.add(1);
-				} else if (adj.get(1).size() == 0) {
+				} else if (adjacencyList.get(1).size() == 0) {
 					shortest.add(2);
 				} else traverse(1);
 
@@ -646,7 +649,7 @@ public class MazeAssignmentGUI implements ActionListener {
 
 			visited[node] = true;
 			path.add(node);
-			for(int i:adj.get(node)){
+			for(int i: adjacencyList.get(node)){
 				traverse(i);
 			}
 
