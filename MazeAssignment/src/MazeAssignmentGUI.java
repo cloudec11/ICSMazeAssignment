@@ -1,17 +1,8 @@
-import java.awt.*;
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
-import java.io.File;
-import java.io.InputStreamReader;
-import java.util.Scanner;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.StringTokenizer;
-import java.util.jar.Attributes.Name;
-
+import java.util.*;
 public class MazeAssignmentGUI implements ActionListener {
 	static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 	static StringTokenizer st;
@@ -374,8 +365,6 @@ public class MazeAssignmentGUI implements ActionListener {
 	    static int[] findExitSide(char[][]maze){
 	        int[] currentPos = new int[2];
 	        int[] delta = new int[2];
-	        delta[0] = 0;
-	        delta[1] = 0;
 	        for (int i = 0; i < maze.length; i++) {
 	            for (int j = 0; j < maze[0].length; j++) {
 	                if(maze[i][j]=='X'){
@@ -415,9 +404,6 @@ public class MazeAssignmentGUI implements ActionListener {
 	    }
 
 	    static void drawFirstCell(char[][]maze, int[]currentPos){
-	        int Xchange = 0;
-	        int Ychange = 0;
-	        int direction = 0;
 	        int[] delta = findExitSide(maze);
 	        currentPos[0]+=delta[0];
 	        currentPos[1]+=delta[1];
@@ -533,17 +519,6 @@ public class MazeAssignmentGUI implements ActionListener {
 	                }
 	            }
 	        }
-	    }
-
-	    static void drawShortestPath(){
-
-	        for (int i = 0; i < graph.length; i++) {
-	            for (int j = 0; j < graph[0].length; j++) {
-	                int current = graph[i][j];
-
-	            }
-	        }
-
 	    }
 
 	    static int[][] createGraph (char[][]maze){
