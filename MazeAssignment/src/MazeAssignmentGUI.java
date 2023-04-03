@@ -226,7 +226,7 @@ public class MazeAssignmentGUI implements ActionListener {
             	break;
             case 'S': label.setBackground(Color.RED);
             	break;
-            case '+': label.setBackground(Color.WHITE);
+            case '+': label.setBackground(Color.YELLOW);
             	break;
             default:
             	label.setBackground(Color.YELLOW);
@@ -358,7 +358,7 @@ public class MazeAssignmentGUI implements ActionListener {
 
 	        drawFirstCell(maze, currentPos);
 
-	        int pathLength = (int) (Math.random()*(maze.length+maze[0].length)+1);
+	        int pathLength = (int) (Math.random()*(maze.length*maze[0].length)+(maze.length+ maze[0].length)/2);
 
 	        drawPath(pathLength, currentPos, maze);
 
@@ -527,9 +527,8 @@ public class MazeAssignmentGUI implements ActionListener {
 	            shortest.remove(0);
 	            for (int i = 0; i < graph.length; i++) {
 	                for (int j = 0; j < graph[0].length; j++) {
-	                    if(maze[i][j]=='O') maze[i][j] = '+';
 	                    if(shortest.contains(graph[i][j])){
-	                        maze[i][j] = '-';
+	                        maze[i][j] = '+';
 	                    }
 	                }
 	            }
