@@ -131,40 +131,34 @@ public class MazeAssignmentGUI implements ActionListener {
 			File file = new File(fileName + ".txt");
 			try {
 				rows = readRows(file);
-			}
-			catch (Exception event) {
-				System.out.println();
-			}
-			try {
+
 				cols = readCol(file);
-			}
-			catch (Exception event) {
-				System.out.println();
-			}
-			char maze[][] = new char[rows][cols];
-			try {
+
+				char maze[][] = new char[rows][cols];
+
 				readChars(file);
 				createArray(maze, file);
 				findPath(maze);
-			}
 
-			catch (Exception event) {
+
+
+
+
+				frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+				frame.setLayout(new GridLayout(maze.length, maze[0].length));
+				frame.setLocationRelativeTo(null);
+				for (int row = 0; row < maze.length; row++) {
+					for (int col = 0; col <= maze[0].length - 1; col++) {
+						JLabel label = makeLabel(maze[row][col]);
+						frame.add(label);
+					}
+				}
+
+				frame.pack();
+				frame.setVisible(true);
+			}catch(Exception event){
 				System.out.println();
 			}
-
-
-			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-			frame.setLayout(new GridLayout(maze.length, maze[0].length));
-			frame.setLocationRelativeTo(null);
-			for (int row = 0; row < maze.length; row++) {
-				for (int col = 0; col <= maze[0].length-1; col++) {
-					JLabel label = makeLabel(maze[row][col]);
-					frame.add(label);
-				}
-			}
-
-			frame.pack();
-			frame.setVisible(true);
 		}
 		else if (command.equals("Enter")) {
 			try {
