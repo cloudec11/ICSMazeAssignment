@@ -7,7 +7,7 @@ import java.util.*;
 public class MazeAssignmentGUI implements ActionListener {
 
 	static boolean north, south, east, west;
-	static boolean hasStart, hasExit;
+	static boolean hasStart = false, hasExit = false;
 	static int[][] graph;
 	static boolean[] visited;
 	static char borderChar = 'B';
@@ -105,7 +105,7 @@ public class MazeAssignmentGUI implements ActionListener {
 			panel.add(ColumnLabel);
 			panel.add(ColumnInput);
 			panel.add(RandomMaze);
-			
+
 			frame.setSize(2000, 999);
 			frame.setSize(2000, 1000);
 
@@ -380,7 +380,7 @@ public class MazeAssignmentGUI implements ActionListener {
 	}
 
 	static int[] drawExit(char[][]maze){
-
+		hasExit = true;
 		int exitPos = (int) (Math.random()*4+1);
 		int[] exitCoord = new int[2];
 		/**
@@ -442,7 +442,7 @@ public class MazeAssignmentGUI implements ActionListener {
 	}
 	static void selectStart(char[][]maze){
 		int y = (int)(Math.random()* maze.length-1)+1;
-		int x = (int)(Math.random()*maze[0].length)+1;
+		int x = (int)(Math.random()*maze[0].length-1)+1;
 		maze[y][x] = startChar;
 		hasStart = true;
 	}
@@ -463,6 +463,7 @@ public class MazeAssignmentGUI implements ActionListener {
 		startPos[1] = currentPos[1];
 		maze[startPos[0]][startPos[1]] = startChar;
 		cellChecked[startPos[0]][startPos[1]] = true;
+		hasStart = true;
 		return startPos;
 
 	}
@@ -600,34 +601,39 @@ public class MazeAssignmentGUI implements ActionListener {
 
 
 	static void findPath(char[][]maze){
+		if(!hasStart){
 
-		int[] startPos = findStartCell(maze);
-		boolean startExitConnected = isStartExitConnected(maze, startPos[1], startPos[0]);
-		if(startExitConnected){
-			maze[startPos[0]][startPos[1]] = '+';
+		} else if(!hasExit){
+
 		}
-		else {
-			visited = new boolean[maze.length * maze[0].length];
-			min = maze.length * maze[0].length; //there is at most, r * c total cells
-			graph = createGraph(maze);
-			adjacencyList = createList(graph);
-
-
-			if (adjacencyList.get(2).size() == 0) {
-				shortest.add(1);
-			} else if (adjacencyList.get(1).size() == 0) {
-				shortest.add(2);
-			} else traverse(1);
-
-			if(shortest.size()==0){
-				//no path
-				//Create text field that says "no path found"
+		else if(hasStart && hasExit) {
+			int[] startPos = findStartCell(maze);
+			boolean startExitConnected = isStartExitConnected(maze, startPos[1], startPos[0]);
+			if (startExitConnected) {
+				maze[startPos[0]][startPos[1]] = '+';
 			} else {
-				shortest.remove(0);
-				for (int i = 0; i < graph.length; i++) {
-					for (int j = 0; j < graph[0].length; j++) {
-						if (shortest.contains(graph[i][j])) {
-							maze[i][j] = '+';
+				visited = new boolean[maze.length * maze[0].length];
+				min = maze.length * maze[0].length; //there is at most, r * c total cells
+				graph = createGraph(maze);
+				adjacencyList = createList(graph);
+
+
+				if (adjacencyList.get(2).size() == 0) {
+					shortest.add(1);
+				} else if (adjacencyList.get(1).size() == 0) {
+					shortest.add(2);
+				} else traverse(1);
+
+				if (shortest.size() == 0) {
+					//no path
+					//Create text field that says "no path found"
+				} else {
+					shortest.remove(0);
+					for (int i = 0; i < graph.length; i++) {
+						for (int j = 0; j < graph[0].length; j++) {
+							if (shortest.contains(graph[i][j])) {
+								maze[i][j] = '+';
+							}
 						}
 					}
 				}
@@ -635,16 +641,6 @@ public class MazeAssignmentGUI implements ActionListener {
 		}
 	}
 
-	static void drawShortestPath(){
-
-		for (int i = 0; i < graph.length; i++) {
-			for (int j = 0; j < graph[0].length; j++) {
-				int current = graph[i][j];
-
-			}
-		}
-
-	}
 
 	static int[][] createGraph (char[][]maze){
 		int nextCell = 3;
@@ -726,6 +722,27 @@ public class MazeAssignmentGUI implements ActionListener {
 	static ArrayList<Integer> path = new ArrayList<>();
 
 	static void traverse(int node){
+		/**
+		 * Traverses through all the connected numbers to integer node inside
+		 * of the arraylist adjacency list using a loop to recruisvely call traverse again for a connected
+		 * number. For each traversal we add the traversed number
+		 * to an arraylist to record the route traveled so far. We also use a boolean array
+		 * to track which numbers we have visited.
+		 *
+		 * Once the current node being searched is equal to 2 (the exit number),
+		 * we check if the size of the route list is less than the current min which by default is the
+		 * area of the maze so it will always be greater than the first path found.
+		 *
+		 * Once the recursive stack completes, we remove every traversed number up to the current number
+		 * and reset the vistied array for those numbers. We do this so the traversal algorithm
+		 * can check other paths that use those numbers.
+		 *
+		 * This algorithm is type void so that it can search every connection for a possible path
+		 * and even when there is no path, the size of the shortest path list where the shortest path is stored
+		 * will be zero.
+		 *
+		 * @param node integer to start the traversal from
+		 */
 		if(node==2){
 			if(path.size()<min){
 				path.add(node);
