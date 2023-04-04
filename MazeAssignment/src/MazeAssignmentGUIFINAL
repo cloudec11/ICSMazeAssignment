@@ -1,0 +1,797 @@
+import javax.swing.*; //import java libraries containing code for the graphical user interface
+import java.awt.*;
+import java.awt.event.*;
+import java.io.*;
+import java.util.*;
+
+public class MazeAssignmentGUI implements ActionListener {
+
+	static boolean north, south, east, west;
+	static boolean hasStart = false, hasExit = false;
+	static int[][] graph;
+	static boolean[] visited;
+	static char borderChar = 'B';
+	static char pathChar = 'O';
+	static char startChar = 'S';
+	static char exitChar = 'X';
+	static boolean[][] cellChecked;
+	static int numCellChecked = 0;
+	static ArrayList<ArrayList<Integer>> adjacencyList;
+	static ArrayList<Integer> shortest = new ArrayList<>();
+	static int min;
+	static int[] lastCoord = new int[2];
+	static char mainMaze[][]; 
+
+	static JButton OwnMazeButton = new JButton("Make your own Maze"); //creating global object that acts as a button for user input, the same applies for all other static JButtons
+	static JButton FileMazeButton = new JButton("Open A File");
+	static JButton DoneButton = new JButton("Enter");
+	static JButton FileDoneButton = new JButton("Enter File");
+	static JButton RandomMaze  = new JButton("Create Maze with no Guaranteed Path");
+	static JButton FindPath = new JButton("Find Shortest Path");
+	static JButton Legend = new JButton("Open Legend");
+	static JButton ReturnMaze = new JButton("Return to Maze");
+
+
+
+	static JTextField RowInput = new JTextField(); //creating global object that acts as a text field that allows users to input required numbers, in this case the number of rows for the creation of random maze
+	static JTextField ColumnInput = new JTextField();//creating global object that acts as a text field that allows users to input required numbers, in this case the number of columns for the creation of random maze
+	static JTextField EnterFileName = new JTextField();//creating global object that acts as a text field that allows users to input required numbers, in this case the name of the file of which they desire to access.
+
+	static JLabel RowLabel = new JLabel("Enter how many rows you want in your maze"); //creating global object that acts as a label that displays text/prompts to users providing them instructions on how to operate the program. This applies for all labels
+	static JLabel ColumnLabel = new JLabel("Enter how many columns you want in your maze");
+	static JLabel FileLabel = new JLabel("Enter the File Name");
+	static JLabel LegendLabel = new JLabel("Blue = Border           Red  = Starting Point            Green = Exit              White = Open Path          Yellow = Starting Point    ");
+	static JLabel NoPathLabel = new JLabel("This maze has no path");
+
+
+
+
+	static JFrame frame = new JFrame(); //creates window/frame for the program
+	static JPanel panel = new JPanel(); //creates a panel that will be added to the frame which will allows for the positioning of other objects like buttons and labels.
+
+	public MazeAssignmentGUI() { //start of the MazeAssignmentGUI GUI
+		frame.setVisible(true); //sets the frame as visible thus allowing the user to actually see the window
+		frame.setSize(2000, 1000); //sets the size of the frame to 2000, 1000 pixels
+		frame.setTitle("Maze"); //sets the title of the window to the name maze
+		frame.add(panel); //adds the panel to the frame
+		panel.setLayout(null); //sets the panel's layout to null (declaring that the panel has no layouts) thus allowing the manual positioning of buttons and labels.
+		RowLabel.setFont(new Font("Arial", Font.PLAIN, 20)); //setting the font of the labels to Arial, size 20. Same goes for the other labels that have set fonts.
+		ColumnLabel.setFont(new Font("Arial", Font.PLAIN, 20));
+		FileLabel.setFont(new Font("Arial", Font.PLAIN, 20));
+		LegendLabel.setFont(new Font("Arial", Font.PLAIN, 20));
+		NoPathLabel.setFont(new Font("Arial", Font.PLAIN, 20));
+
+		OwnMazeButton.setBounds(300, 350, 500, 300); //sets the bounds of the button, thus declaring the positioning of the button on the panel. x value of 300, y value of 350, width of 500, and height of 300
+		FileMazeButton.setBounds(1100, 350, 500, 300); //all other setBounds follow the same logic, x, y, width, height
+		panel.add(OwnMazeButton); //adding the OwnMazeButton and FileMazeButton to their respective positions onto the panel
+		panel.add(FileMazeButton);
+		OwnMazeButton.addActionListener(this); //adding action listeners that allows the program to detect if the corresponding button is clicked and then it will perform an action if it detects the user clicks the button.
+		FileMazeButton.addActionListener(this);
+		DoneButton.addActionListener(this);
+		FileDoneButton.addActionListener(this);
+		RandomMaze.addActionListener(this);
+		FindPath.addActionListener(this);
+		Legend.addActionListener(this);
+		ReturnMaze.addActionListener(this);		
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); //sets the default close operation to closing the JFrame window.
+	}
+
+	public static void main(String[] args) { //start of main method header
+		MazeAssignmentGUI frame1 = new MazeAssignmentGUI(); //this line initiates the graphical user interface
+
+	}
+
+	public void actionPerformed(ActionEvent e) { //action performed method, this method will listen for if buttons are clicked and then will perform a suitable action
+		int rows, cols; //initialization of variables used in later statements, rows to store row value for maze and cols to store column value for maze.
+		String fileName; //declares a string variable that is used to store user input when asked for a file name
+
+		String command = e.getActionCommand(); //declaration of string command that will store the string name of the button pressed.
+		if(command.equals("Make your own Maze")) { // if they press the button that says Make your own Maze then perform the code. All command.equals do the same thing, whichever button is pressed, it will perform the if/else if statement that has the corresponding text located on the button.
+			panel.remove(OwnMazeButton); //removes OwnMazeButton and FileMazeButton so as basically to refresh the screen so other thigns can be added.
+			panel.remove(FileMazeButton);
+			OwnMazeButton.setVisible(false); //sets them both to invisible so the user can't see them
+			FileMazeButton.setVisible(false);
+
+			
+			RowLabel.setBounds(400, 100, 500, 500); //sets the position of the labels and buttons
+			RowInput.setBounds(347, 380, 500, 50);
+			ColumnLabel.setBounds(1200, 100, 500, 500);
+			ColumnInput.setBounds(1160, 380, 500, 50);
+			DoneButton.setBounds(750, 500, 500, 200);
+			RandomMaze.setBounds(750, 750, 500, 200);
+
+			panel.add(DoneButton); //adds the corresponding buttons and labels.
+			panel.add(RowLabel);
+			panel.add(RowInput);
+			panel.add(ColumnLabel);
+			panel.add(ColumnInput);
+			panel.add(RandomMaze);
+			
+			frame.setSize(2000, 999); //this changes the frame size then changes it back to the original. This is done because without it, you would need to interact/click other parts of the window in order to perform the actions without delay. This way, it can refresh the page without delay
+			frame.setSize(2000, 1000);
+
+
+
+
+		}
+		else if (command.equals("Open A File")) {
+			panel.remove(OwnMazeButton); //removes OwnMazeButton and FileMazeButton and sets both to invisible
+			OwnMazeButton.setVisible(false);
+			panel.remove(FileMazeButton);
+			FileMazeButton.setVisible(false);
+
+
+			FileLabel.setBounds(860, 180, 500, 500); //sets position and adds to panel
+			EnterFileName.setBounds(700, 450, 500, 50);
+			FileDoneButton.setBounds(700, 550, 500, 200);
+			panel.add(FileLabel);
+			panel.add(EnterFileName);
+			panel.add(FileDoneButton);
+
+			frame.setSize(2000, 999);//for refreshing the page without delay
+			frame.setSize(2000, 1000);
+
+
+		}
+		else if (command.equals("Enter File")) {
+			panel.remove(FileLabel); //removing labels and buttons 
+			panel.remove(EnterFileName);
+			panel.remove(FileDoneButton);
+			frame.remove(panel);
+			FileDoneButton.setVisible(false); //setting labels and buttons invisible
+			FileLabel.setVisible(false);
+			EnterFileName.setVisible(false);
+			panel.setVisible(false);
+			rows = 0; //initializing rows and cols
+			cols = 0;
+			fileName = EnterFileName.getText(); //this grabs whatever they input into the text field asking them for user input
+			File file = new File(fileName + ".txt"); //grabs the file that they entered from the computer. Needs to be in the same folder as the src contianing the class.
+			try { //try and catch to read rows from the file, read columns from the file
+				rows = readRows(file);
+			}
+			catch (Exception event) {
+				System.out.println();
+			}
+			try {
+				cols = readCol(file);
+			}
+			catch (Exception event) {
+				System.out.println();
+			}
+			mainMaze = new char[rows][cols]; //once we have the rows and columns, a the two dimensional mainMaze array is now initialized with the corresponding rows and columns as dimensions.
+			try {
+				readChars(file);
+				createArray(mainMaze, file);
+			}
+
+			catch (Exception event) {
+				System.out.println();
+			}
+			
+			
+			
+			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			frame.setLayout(new GridLayout(0, mainMaze[0].length));
+			frame.setLocationRelativeTo(null);
+			for (int row = 0; row < mainMaze.length; row++) {
+				for (int col = 0; col <= mainMaze[0].length-1; col++) {
+					JLabel label = makeLabel(mainMaze[row][col]);
+					frame.add(label);
+				}
+			}
+			frame.add(FindPath);
+			frame.add(Legend);
+			frame.pack();
+			frame.setVisible(true);
+		}
+		else if (command.equals("Create Maze with no Guaranteed Path")) {
+			rows = Integer.parseInt(RowInput.getText());
+			cols = Integer.parseInt(ColumnInput.getText());
+			panel.remove(RowLabel);
+			panel.remove(ColumnLabel);
+			panel.remove(RowInput);
+			panel.remove(ColumnInput);
+			panel.remove(DoneButton);
+			frame.remove(panel);
+			RowLabel.setVisible(false);
+			ColumnLabel.setVisible(false);
+			RowInput.setVisible(false);
+			ColumnInput.setVisible(false);
+			DoneButton.setVisible(false);
+			panel.setVisible(false);
+			mainMaze = new char[rows][cols];
+			noGuranteePathMaze(mainMaze);
+			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			frame.setLayout(new GridLayout(0, mainMaze[0].length));
+			frame.setLocationRelativeTo(null);
+			for (int row = 0; row < mainMaze.length; row++) {
+				for (int col = 0; col <= mainMaze[0].length-1; col++) {
+					JLabel label = makeLabel(mainMaze[row][col]);
+					frame.add(label);
+				}
+			}
+			frame.add(FindPath);
+			frame.add(Legend);
+			frame.pack();
+			frame.setVisible(true);
+			
+			
+		}
+		else if (command.equals("Enter")) {
+			rows = Integer.parseInt(RowInput.getText());
+			cols = Integer.parseInt(ColumnInput.getText());
+			panel.remove(RowLabel);
+			panel.remove(ColumnLabel);
+			panel.remove(RowInput);
+			panel.remove(ColumnInput);
+			panel.remove(DoneButton);
+			frame.remove(panel);
+			RowLabel.setVisible(false);
+			ColumnLabel.setVisible(false);
+			RowInput.setVisible(false);
+			ColumnInput.setVisible(false);
+			DoneButton.setVisible(false);
+			panel.setVisible(false);
+			mainMaze = new char[rows][cols];
+			drawMaze(mainMaze);
+
+
+			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			frame.setLayout(new GridLayout(mainMaze.length + 1, mainMaze[0].length));
+			frame.setLocationRelativeTo(null);
+			for (int row = 0; row < mainMaze.length; row++) {
+				for (int col = 0; col <= mainMaze[0].length-1; col++) {
+					JLabel label = makeLabel(mainMaze[row][col]);
+					frame.add(label);
+				}
+			}
+			frame.add(FindPath);
+			frame.add(Legend);
+			
+
+			frame.pack();
+			frame.setVisible(true);
+
+		}
+		else if (command.equals("Find Shortest Path")) {
+			
+			char tempMaze[][] = new char[mainMaze.length][mainMaze[0].length];
+			for (int i = 0; i < tempMaze.length; i++) {
+				for (int j = 0; j < tempMaze[0].length; j++) {
+					tempMaze[i][j] = mainMaze[i][j];
+				}
+			}
+			frame.setSize(2000, 999);
+			frame.setSize(2000, 1000);
+			findPath(tempMaze);
+			if(shortest.size()==0){
+				frame.getContentPane().removeAll();
+				frame.setLayout(new GridLayout(0, 2));
+				frame.add(NoPathLabel);
+				frame.add(ReturnMaze);
+			}
+			else {
+				frame.getContentPane().removeAll();
+				
+
+	
+				frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+				frame.setLayout(new GridLayout(0, tempMaze[0].length));
+				frame.setLocationRelativeTo(null);
+				for (int row = 0; row < tempMaze.length; row++) {
+					for (int col = 0; col <= tempMaze[0].length-1; col++) {
+						JLabel label = makeLabel(tempMaze[row][col]);
+						frame.add(label);
+					}
+				}
+				frame.add(FindPath);
+				frame.add(Legend);
+				frame.pack();
+			}
+		}
+		else if (command.equals("Open Legend")) {
+			frame.getContentPane().removeAll();
+			frame.setLayout(new GridLayout(0, 1));
+			frame.setSize(2000, 999);
+			frame.setSize(2000, 1000);
+
+			frame.add(LegendLabel);
+			frame.add(ReturnMaze);
+		}
+		else if (command.equals("Return to Maze")) {
+			frame.getContentPane().removeAll();
+			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			frame.setLayout(new GridLayout(0, mainMaze[0].length));
+			frame.setLocationRelativeTo(null);
+			for (int row = 0; row < mainMaze.length; row++) {
+				for (int col = 0; col <= mainMaze[0].length-1; col++) {
+					JLabel label = makeLabel(mainMaze[row][col]);
+					frame.add(label);
+				}
+			}
+			frame.add(FindPath);
+			frame.add(Legend);
+			
+
+			frame.pack();
+			frame.setVisible(true);
+		}
+	}
+	
+
+	public JLabel makeLabel(char c) {
+		JLabel label= new JLabel();
+		label.setHorizontalAlignment(JLabel.CENTER);
+		label.setPreferredSize(new Dimension(40, 40));
+		if(c==borderChar){
+			label.setBackground(Color.BLUE);
+		} else if(c==exitChar){
+			label.setBackground(Color.GREEN);
+		} else if(c==pathChar){
+			label.setBackground(Color.WHITE);
+		} else if(c==startChar) {
+			label.setBackground(Color.RED);
+		} else if(c=='+'){
+			label.setBackground(Color.YELLOW);
+		}
+		label.setOpaque(true);
+		label.setBorder(BorderFactory.createLineBorder(Color.WHITE, 1));
+		return label;
+	}
+	public static void readChars(File file) throws IOException{
+		Scanner input = new Scanner(file);
+		input.nextLine();
+		input.nextLine();
+		borderChar = input.nextLine().charAt(0);
+		pathChar = input.nextLine().charAt(0);
+		startChar = input.nextLine().charAt(0);
+		exitChar = input.nextLine().charAt(0);
+	}
+
+	public static int readRows(File file) throws Exception {
+		int rowsFile;
+		Scanner input = new Scanner(file);
+		rowsFile = Integer.parseInt(input.nextLine());
+		return rowsFile;
+	}
+
+	public static int readCol(File file) throws Exception {
+		int columnsFile;
+		Scanner input = new Scanner(file);
+		input.nextLine();
+		columnsFile = Integer.parseInt(input.nextLine());
+		return columnsFile;
+	}
+
+	public static void createArray(char[][] maze, File file) throws Exception {
+		char c;
+		Scanner input = new Scanner(file);
+		for (int i = 0; i < 5; i++) {
+			input.nextLine();
+		}
+		for (int i = 0; i < maze.length; i++) {
+			input.nextLine();
+			for (int j = 0; j < maze[0].length; j++) {
+				c = input.findInLine(".").charAt(0);
+				maze[i][j] = c;
+				if(c==startChar) hasStart = true;
+				if(c==exitChar) hasExit = true;
+				
+			}
+		}
+
+	}
+
+
+	static void drawMazeBarriers(char[][]maze){
+		cellChecked = new boolean[maze.length][maze[0].length];
+		for (int i = 0; i < maze.length; i++) {
+			for (int j = 0; j < maze[i].length; j++) {
+				if(j==0 || j==maze[i].length-1 || i==0 || i== maze.length-1){
+					maze[i][j] = borderChar;
+					cellChecked[i][j] = true;
+					numCellChecked++;
+				}
+			}
+		}
+	}
+
+	static int[] drawExit(char[][]maze){
+		hasExit = true;
+		int exitPos = (int) (Math.random()*4+1);
+		int[] exitCoord = new int[2];
+		/**
+		 * If exit position is 1, the exit will be at the top
+		 * if exit position is 2, the exit wil be on the bottom
+		 * if exit position is 3, the exit will be on the left
+		 * if exit position is 4, the exit will on the right
+		 */
+
+
+		if(exitPos==1){ //exit will be on the top
+			int exitCell = (int)(Math.random()*(maze[0].length-2)+1);
+			maze[0][exitCell] = exitChar;
+			exitCoord[0] = 0;
+			exitCoord[1] = exitCell;
+
+		} else if(exitPos==2){
+			int exitCell = (int)(Math.random()*(maze[0].length-2)+1);
+			maze[maze.length-1][exitCell] = exitChar;
+			exitCoord[0] = maze.length-1;
+			exitCoord[1] = exitCell;
+
+		}else if(exitPos==3){
+			int exitCell = (int)(Math.random()*(maze.length-2)+1);
+			maze[exitCell][0] = exitChar;
+			exitCoord[0] = exitCell;
+			exitCoord[1] = 0;
+
+		}else if(exitPos==4){
+			int exitCell = (int)(Math.random()*(maze.length-2)+1);
+			maze[exitCell][maze[0].length-1] = exitChar;
+			exitCoord[0] = exitCell;
+			exitCoord[1] = maze[0].length-1;
+		}
+		numCellChecked++;
+		cellChecked[exitCoord[0]][exitCoord[1]] = true;
+		return exitCoord;
+	}
+
+	static void drawMaze(char[][] maze){
+		drawMazeBarriers(maze);
+		int exitCoord[] = drawExit(maze);
+		int startCoord[] = drawExitPath(maze, exitCoord);
+		lastCoord[0] = startCoord[0];
+		lastCoord[1] = startCoord[1];
+
+		loopDraw(maze);
+
+		drawWalls(maze);
+
+	}
+
+	static void noGuranteePathMaze(char[][]maze){
+		drawMazeBarriers(maze);
+		int exitCoord[]=drawExit(maze);
+		loopDraw(maze);
+		selectStart(maze);
+		drawWalls(maze);
+	}
+	static void selectStart(char[][]maze){
+		int y = (int)(Math.random()* maze.length-1)+1;
+		int x = (int)(Math.random()*maze[0].length-1)+1;
+		maze[y][x] = startChar;
+		hasStart = true;
+	}
+	static int[] drawExitPath(char[][] maze, int[] exitCoord){
+		int[] currentPos = new int[2];
+
+		currentPos[0] = exitCoord[0];
+		currentPos[1] = exitCoord[1];
+
+		drawFirstCell(maze, currentPos);
+
+		int pathLength = (int) (Math.random()*(maze.length*maze[0].length)+(maze.length+ maze[0].length)/2);
+
+		drawPath(pathLength, currentPos, maze);
+
+		int[] startPos = new int[2];
+		startPos[0] = currentPos[0];
+		startPos[1] = currentPos[1];
+		maze[startPos[0]][startPos[1]] = startChar;
+		cellChecked[startPos[0]][startPos[1]] = true;
+		hasStart = true;
+		return startPos;
+
+	}
+
+	static int[] findExitSide(char[][]maze){
+		int[] currentPos = new int[2];
+		int[] delta = new int[2];
+		delta[0] = 0;
+		delta[1] = 0;
+		for (int i = 0; i < maze.length; i++) {
+			for (int j = 0; j < maze[0].length; j++) {
+				if(maze[i][j]==exitChar){
+					currentPos[0] = i;
+					currentPos[1] = j;
+				}
+			}
+		}
+
+		if(currentPos[0]== maze.length-1) {
+			delta[0] = -1;
+
+		} else if (currentPos[0]==0){
+			delta[0] = 1;
+
+		} else if (currentPos[1]==0){
+			delta[1] = 1;
+
+		} else if (currentPos[1]==maze[0].length-1){
+			delta[1] = -1;
+
+		}
+		return delta;
+	}
+
+	static int[] findStartCell(char[][]maze){
+		int[] startPos = new int[2];
+		for (int i = 0; i < maze.length; i++) {
+			for (int j = 0; j < maze[0].length; j++) {
+				if(maze[i][j]==startChar){
+					startPos[0] = i;
+					startPos[1] = j;
+				}
+			}
+		}
+		return startPos;
+	}
+
+	static void drawFirstCell(char[][]maze, int[]currentPos){
+		int Xchange = 0;
+		int Ychange = 0;
+		int direction = 0;
+		int[] delta = findExitSide(maze);
+		currentPos[0]+=delta[0];
+		currentPos[1]+=delta[1];
+		maze[currentPos[0]][currentPos[1]] = pathChar;
+		cellChecked[currentPos[0]][currentPos[1]] = true;
+	}
+
+	static void loopDraw(char[][]maze){
+		for (int i = 1; i < maze.length-1; i++) {
+			for (int j = 1; j < maze[0].length-1; j++) {
+				if(!cellChecked[i][j]){
+					cellChecked[i][j] = true;
+					int cur[] = new int[2];
+					cur[0] = i;
+					cur [1] = j;
+					int pathLength = (int) (Math.random()*(maze.length+maze[0].length)+1);
+					drawPath(pathLength, cur, maze);
+				}
+			}
+		}
+	}
+
+	static void drawPath(int pathLength, int[]currentPos, char [][]maze){
+		int[][] moves = {
+				{0, 1},
+				{0, -1},
+				{1, 0},
+				{-1, 0}
+		};
+		for (int i = 0; i < pathLength; i++) {
+
+			int moveNum = (int)(Math.random()*3);
+
+			int [] temp = new int[2];
+			temp[0]  = currentPos[0] + moves[moveNum][0];
+			temp[1] = currentPos[1] + moves[moveNum][1];
+			if(validCell(temp, maze, moves[moveNum])){
+				currentPos[0]+=moves[moveNum][0];
+				currentPos[1]+=moves[moveNum][1];
+				maze[currentPos[0]][currentPos[1]] = pathChar;
+			}
+
+		}
+
+	}
+	static boolean validCell(int []currentPos, char[][]maze, int[]moveMap){
+		boolean notOnBorder = notBorder(currentPos, maze);
+		if(notOnBorder){
+			int[] temp = new int[2];
+			temp[0] = currentPos[0]+moveMap[0];
+			temp[1] = currentPos[1]+moveMap[1];
+			if(notBorder(temp, maze)){
+				if(maze[temp[0]][temp[1]]==pathChar) return false;
+				if(moveMap[0]!=0){
+					if(maze[currentPos[0]][currentPos[1]+1]==pathChar) return false;
+					if(maze[currentPos[0]][currentPos[1]-1]==pathChar) return false;
+				} else if(moveMap[1]!=0){
+					if(maze[currentPos[0]+1][currentPos[1]]==pathChar) return false;
+					if(maze[currentPos[0]-1][currentPos[1]]==pathChar) return false;
+				}
+			}
+		} else if(!notOnBorder) return false;
+		return true;
+	}
+	static boolean notBorder(int []currentPos, char[][]maze){
+		if(maze[currentPos[0]][currentPos[1]] == borderChar || maze[currentPos[0]][currentPos[1]] == exitChar){
+			return false;
+		}
+		else if(maze[currentPos[0]][currentPos[1]]==startChar){
+			return false;
+		}
+		else return true;
+	}
+
+	static void drawWalls(char[][]maze){
+		for (int i = 0; i < maze.length; i++) {
+			for (int j = 0; j < maze[i].length; j++) {
+				if(maze[i][j] != startChar && maze[i][j]!=pathChar && maze[i][j] != exitChar && maze[i][j] != borderChar){
+					maze[i][j] = borderChar;
+				}
+			}
+		}
+	}
+
+
+	static void findPath(char[][]maze){
+		if(!hasStart){
+
+		} else if(!hasExit){
+
+		}
+		else if(hasStart && hasExit) {
+			int[] startPos = findStartCell(maze);
+			boolean startExitConnected = isStartExitConnected(maze, startPos[1], startPos[0]);
+			if (startExitConnected) {
+				maze[startPos[0]][startPos[1]] = '+';
+			} else {
+				visited = new boolean[maze.length * maze[0].length];
+				min = maze.length * maze[0].length; //there is at most, r * c total cells
+				graph = createGraph(maze);
+				adjacencyList = createList(graph);
+
+
+				if (adjacencyList.get(2).size() == 0) {
+					shortest.add(1);
+				} else if (adjacencyList.get(1).size() == 0) {
+					shortest.add(2);
+				} else traverse(1);
+
+				if (shortest.size() == 0) {
+					//no path
+					//Create text field that says "no path found"
+				} else {
+					shortest.remove(0);
+					for (int i = 0; i < graph.length; i++) {
+						for (int j = 0; j < graph[0].length; j++) {
+							if (shortest.contains(graph[i][j])) {
+								maze[i][j] = '+';
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+
+	static int[][] createGraph (char[][]maze){
+		int nextCell = 3;
+		int[] delta = findExitSide(maze);
+		int[][]graph = new int[maze.length][maze[0].length];
+		for (int i = 0; i < maze.length; i++) {
+			for (int j = 0; j < maze[0].length; j++) {
+				if(maze[i][j]==startChar)
+				{
+					graph[i][j] = 1;
+				}
+				else if (maze[i][j]==exitChar)
+				{
+					graph[i+delta[0]][j+delta[1]] = 2;
+					graph[i][j] = 0;
+				}
+				else if(maze[i][j]==pathChar && graph[i][j]!=2) {
+					graph[i][j] = nextCell;
+					nextCell++;
+				}
+			}
+		}
+		return graph;
+	}
+	static ArrayList<ArrayList<Integer>> createList(int[][]graph){
+		ArrayList<ArrayList<Integer>> adj = new ArrayList<>();
+		int maxCells = (graph.length * graph[0].length);
+		for (int i = 0; i < maxCells; i++) {
+			adj.add(new ArrayList<>());
+		}
+		for(int i = 0; i<graph.length; i++){
+			for(int j = 0; j< graph[0].length; j++){
+				int temp = graph[i][j];
+				if(temp!=0){
+					//perform 4 direction check for adjacent
+					checkDir(graph, j, i);
+
+
+					if(north) {
+
+						adj.get(graph[i][j]).add(graph[i-1][j]);
+					}
+					if(south){
+
+						adj.get(graph[i][j]).add(graph[i+1][j]);
+					}if(east){
+
+						adj.get(graph[i][j]).add(graph[i][j+1]);
+					}if(west){
+
+						adj.get(graph[i][j]).add(graph[i][j-1]);
+					}
+				}
+			}
+		}
+		return adj;
+	}
+
+	static void checkDir(int[][]graph, int x, int y){
+		north = false;
+		south = false;
+		east = false;
+		west = false;
+		if(graph[y-1][x]!=0) north = true;
+		if(graph[y+1][x]!=0) south = true;
+		if(graph[y][x+1]!=0) east = true;
+		if(graph[y][x-1]!=0) west = true;
+	}
+
+	static boolean isStartExitConnected(char[][]maze, int x, int y){
+		boolean startNextToExit = false;
+		if(maze[y-1][x]==exitChar) startNextToExit = true;
+		if(maze[y+1][x]==exitChar) startNextToExit = true;
+		if(maze[y][x+1]==exitChar) startNextToExit = true;
+		if(maze[y][x-1]==exitChar) startNextToExit = true;
+		return startNextToExit;
+	}
+
+	static ArrayList<Integer> path = new ArrayList<>();
+
+	static void traverse(int node){
+		/**
+		 * Traverses through all the connected numbers to integer node inside
+		 * of the arraylist adjacency list using a loop to recruisvely call traverse again for a connected
+		 * number. For each traversal we add the traversed number
+		 * to an arraylist to record the route traveled so far. We also use a boolean array
+		 * to track which numbers we have visited.
+		 *
+		 * Once the current node being searched is equal to 2 (the exit number),
+		 * we check if the size of the route list is less than the current min which by default is the
+		 * area of the maze so it will always be greater than the first path found.
+		 *
+		 * Once the recursive stack completes, we remove every traversed number up to the current number
+		 * and reset the vistied array for those numbers. We do this so the traversal algorithm
+		 * can check other paths that use those numbers.
+		 *
+		 * This algorithm is type void so that it can search every connection for a possible path
+		 * and even when there is no path, the size of the shortest path list where the shortest path is stored
+		 * will be zero.
+		 *
+		 * @param node integer to start the traversal from
+		 */
+		if(node==2){
+			if(path.size()<min){
+				path.add(node);
+				shortest.clear();
+				visited[2] = false;
+				for(int i = 0; i<path.size(); i++){
+					shortest.add(path.get(i));
+				}
+				min = shortest.size();
+			}
+		}
+		else if(!visited[node]){
+
+			visited[node] = true;
+			path.add(node);
+			for(int i: adjacencyList.get(node)){
+				traverse(i);
+			}
+
+			if(path.size()!=0) {
+				//dont want last element or when path is empty
+				int index = path.indexOf(node);
+				int prevSize = path.size();
+				for (int i = index; i < prevSize; i++) {
+					visited[path.get(index)] = false;
+					path.remove(path.get(index));
+				}
+			}
+		}
+	}
+}
+
+
+
+
