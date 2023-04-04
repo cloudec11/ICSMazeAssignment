@@ -82,7 +82,7 @@ public class MazeAssignmentGUI implements ActionListener {
 		RandomMaze.addActionListener(this);
 		FindPath.addActionListener(this);
 		Legend.addActionListener(this);
-		ReturnMaze.addActionListener(this);		
+		ReturnMaze.addActionListener(this);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); //sets the default close operation to closing the JFrame window.
 	}
 
@@ -102,7 +102,7 @@ public class MazeAssignmentGUI implements ActionListener {
 			OwnMazeButton.setVisible(false); //sets them both to invisible so the user can't see them
 			FileMazeButton.setVisible(false);
 
-			
+
 			RowLabel.setBounds(400, 100, 500, 500); //sets the position of the labels and buttons
 			RowInput.setBounds(347, 380, 500, 50);
 			ColumnLabel.setBounds(1200, 100, 500, 500);
@@ -116,7 +116,7 @@ public class MazeAssignmentGUI implements ActionListener {
 			panel.add(ColumnLabel);
 			panel.add(ColumnInput);
 			panel.add(RandomMaze);
-			
+
 			frame.setSize(2000, 999); //this changes the frame size then changes it back to the original. This is done because without it, you would need to interact/click other parts of the window in order to perform the actions without delay. This way, it can refresh the page without delay
 			frame.setSize(2000, 1000);
 
@@ -144,7 +144,7 @@ public class MazeAssignmentGUI implements ActionListener {
 
 		}
 		else if (command.equals("Enter File")) {
-			panel.remove(FileLabel); //removing labels and buttons 
+			panel.remove(FileLabel); //removing labels and buttons
 			panel.remove(EnterFileName);
 			panel.remove(FileDoneButton);
 			frame.remove(panel);
@@ -158,150 +158,157 @@ public class MazeAssignmentGUI implements ActionListener {
 			File file = new File(fileName + ".txt"); //grabs the file that they entered from the computer. Needs to be in the same folder as the src contianing the class.
 			try { //try and catch to read rows from the file, read columns from the file
 				rows = readRows(file);
+			}
+			catch (Exception event) {
+				System.out.println();
+			}
+			try {
 				cols = readCol(file);
-				mainMaze = new char[rows][cols]; //once we have the rows and columns, a the two dimensional mainMaze array is now initialized with the corresponding rows and columns as dimensions.
-
-				readChars(file);
+			}
+			catch (Exception event) {
+				System.out.println();
+			}
+			mainMaze = new char[rows][cols]; //once we have the rows and columns, a the two dimensional mainMaze array is now initialized with the corresponding rows and columns as dimensions.
+			try {
+				readChars(file); //calls readChars method and createArray which reads the file specified, finds all the characters and puts them into a two dimensional array
 				createArray(mainMaze, file);
 			}
 
 			catch (Exception event) {
 				System.out.println();
 			}
-			
-			
-			
+
+
+
 			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-			frame.setLayout(new GridLayout(0, mainMaze[0].length));
-			frame.setLocationRelativeTo(null);
-			for (int row = 0; row < mainMaze.length; row++) {
+			frame.setLayout(new GridLayout(0, mainMaze[0].length)); //sets the frame to a grid layout, meaning buttons, labels, etc... will be added in a grid fashion. the numbers in the parameters indicate, the number of rows and columns. The rows can be 0 because only one of those parameters can be 0
+			// 0 parameter doesn't change anything, it makes it flexible. As many rows as needed are created. Since columns are fully created, it should prevent any displacements.
+			frame.setLocationRelativeTo(null); //basically just centers the window.
+			for (int row = 0; row < mainMaze.length; row++) {//for loop that loops through the entire maze two dimensional array, then replaces each character with a label created by method makeLabel.
 				for (int col = 0; col <= mainMaze[0].length-1; col++) {
-					JLabel label = makeLabel(mainMaze[row][col]);
+					JLabel label = makeLabel(mainMaze[row][col]); //making label object
 					frame.add(label);
 				}
 			}
-			frame.add(FindPath);
+			frame.add(FindPath); //by now the grid layout should have one extra row, now add find path button and legend button.
 			frame.add(Legend);
-			frame.pack();
-			frame.setVisible(true);
+			frame.pack();// packs the frame together, eliminating unnecessary space, making the frame go tight around the components.
+			frame.setVisible(true); //sets frame visible
 		}
 		else if (command.equals("Create Maze with no Guaranteed Path")) {
-			rows = Integer.parseInt(RowInput.getText());
+			rows = Integer.parseInt(RowInput.getText()); //grabs the input for rows and columns from the corresponding text fields
 			cols = Integer.parseInt(ColumnInput.getText());
-			panel.remove(RowLabel);
+			panel.remove(RowLabel); //removing labels and buttons to make a new window
 			panel.remove(ColumnLabel);
 			panel.remove(RowInput);
 			panel.remove(ColumnInput);
 			panel.remove(DoneButton);
 			frame.remove(panel);
-			RowLabel.setVisible(false);
+			RowLabel.setVisible(false); //setting corresponding labels and buttons to invisible
 			ColumnLabel.setVisible(false);
 			RowInput.setVisible(false);
 			ColumnInput.setVisible(false);
 			DoneButton.setVisible(false);
 			panel.setVisible(false);
-			mainMaze = new char[rows][cols];
-			noGuranteePathMaze(mainMaze);
+			mainMaze = new char[rows][cols]; //initializing a maze that has the user's rows and columns
+			noGuranteePathMaze(mainMaze); //call method guarantee path maze
 			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-			frame.setLayout(new GridLayout(0, mainMaze[0].length));
-			frame.setLocationRelativeTo(null);
-			for (int row = 0; row < mainMaze.length; row++) {
+			frame.setLayout(new GridLayout(0, mainMaze[0].length));//sets the frame to a grid layout, meaning buttons, labels, etc... will be added in a grid fashion. the numbers in the parameters indicate, the number of rows and columns. The rows can be 0 because only one of those parameters can be 0
+			frame.setLocationRelativeTo(null); //basically just centers the window.
+			for (int row = 0; row < mainMaze.length; row++) {//for loop that loops through the entire maze two dimensional array, then replaces each character with a label created by method makeLabel.
 				for (int col = 0; col <= mainMaze[0].length-1; col++) {
-					JLabel label = makeLabel(mainMaze[row][col]);
+					JLabel label = makeLabel(mainMaze[row][col]); //making label object
 					frame.add(label);
 				}
 			}
-			frame.add(FindPath);
+			frame.add(FindPath); //adding find path button and legend button
 			frame.add(Legend);
-			frame.pack();
-			frame.setVisible(true);
-			
-			
+			frame.pack(); //making the window as small as possible
+			frame.setVisible(true); //sets frame visible
+
+
 		}
 		else if (command.equals("Enter")) {
-			rows = Integer.parseInt(RowInput.getText());
+			rows = Integer.parseInt(RowInput.getText()); // grabs user input for rows and columns (they enter these values in the corresponding text fields)
 			cols = Integer.parseInt(ColumnInput.getText());
-			panel.remove(RowLabel);
+			panel.remove(RowLabel); //removing labels and panels and buttons to get a new window
 			panel.remove(ColumnLabel);
 			panel.remove(RowInput);
 			panel.remove(ColumnInput);
 			panel.remove(DoneButton);
 			frame.remove(panel);
-			RowLabel.setVisible(false);
+			RowLabel.setVisible(false);//setting corresponding labels, panels and buttons to invisible
 			ColumnLabel.setVisible(false);
 			RowInput.setVisible(false);
 			ColumnInput.setVisible(false);
 			DoneButton.setVisible(false);
 			panel.setVisible(false);
-			mainMaze = new char[rows][cols];
-			drawMaze(mainMaze);
+			mainMaze = new char[rows][cols]; //initializing mainMaze two D array with the user's rows and columns
+			drawMaze(mainMaze); //call method drawMaze that will create a random maze and store it within the two dimensional array mainMaze
 
 
 			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-			frame.setLayout(new GridLayout(mainMaze.length + 1, mainMaze[0].length));
-			frame.setLocationRelativeTo(null);
-			for (int row = 0; row < mainMaze.length; row++) {
+			frame.setLayout(new GridLayout(0, mainMaze[0].length));//sets the frame to a grid layout, meaning buttons, labels, etc... will be added in a grid fashion. the numbers in the parameters indicate, the number of rows and columns. The rows can be 0 because only one of those parameters can be 0
+			frame.setLocationRelativeTo(null); //centers window
+			for (int row = 0; row < mainMaze.length; row++) { //for loop that loops through the entire maze two dimensional array, then replaces each character with a label created by method makeLabel.
 				for (int col = 0; col <= mainMaze[0].length-1; col++) {
-					JLabel label = makeLabel(mainMaze[row][col]);
+					JLabel label = makeLabel(mainMaze[row][col]); //making label object
 					frame.add(label);
 				}
 			}
-			frame.add(FindPath);
+			frame.add(FindPath); //adding find path and legend button
 			frame.add(Legend);
-			
 
-			frame.pack();
-			frame.setVisible(true);
+
+			frame.pack(); //minimizing window
+			frame.setVisible(true); //set frame visible
 
 		}
 		else if (command.equals("Find Shortest Path")) {
-			
-			char tempMaze[][] = new char[mainMaze.length][mainMaze[0].length];
-			for (int i = 0; i < tempMaze.length; i++) {
+
+			char tempMaze[][] = new char[mainMaze.length][mainMaze[0].length]; //two dimensional arrays are pass by reference. The program alters the maze, which will prevent me from calling the maze again without changing it permanently.
+			for (int i = 0; i < tempMaze.length; i++) { // this for loop and the above line, initializes a two dimensional array that will store every value from the original maze, effectively creating a copy of the mainMaze
 				for (int j = 0; j < tempMaze[0].length; j++) {
 					tempMaze[i][j] = mainMaze[i][j];
 				}
 			}
-			frame.setSize(2000, 999);
+			frame.setSize(2000, 999); //refreshing the window so there is no delay
 			frame.setSize(2000, 1000);
-			findPath(tempMaze);
-			if(shortest.size()==0){
+			findPath(tempMaze); //call findPath which is the method that finds the shortest path
+			if(shortest.size()==0){ //this is basically saying that if there is no path available, change the window by removing all components of the frame, then adding a label that says there is no available maze and allows the user to return back to the maze
 				frame.getContentPane().removeAll();
 				frame.setLayout(new GridLayout(0, 2));
-				frame.add(NoPathLabel);
-				frame.add(ReturnMaze);
+				frame.add(NoPathLabel); //adding label telling user there is no available path
+				frame.add(ReturnMaze);  //adding button that allows user to return to the maze
 			}
-			else {
-				frame.getContentPane().removeAll();
-				
-
-	
+			else { //if there is a shortest path then perform the code inside this block
+				frame.getContentPane().removeAll(); // removes all components of the frame
 				frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-				frame.setLayout(new GridLayout(0, tempMaze[0].length));
+				frame.setLayout(new GridLayout(0, tempMaze[0].length)); //sets frame as grid layout with rows and columns according to the mainMaze
 				frame.setLocationRelativeTo(null);
-				for (int row = 0; row < tempMaze.length; row++) {
+				for (int row = 0; row < tempMaze.length; row++) { //same thing, replacing characters within the mainMaze with labels
 					for (int col = 0; col <= tempMaze[0].length-1; col++) {
-						JLabel label = makeLabel(tempMaze[row][col]);
+						JLabel label = makeLabel(tempMaze[row][col]); //making label object
 						frame.add(label);
 					}
 				}
-				frame.add(FindPath);
+				frame.add(FindPath); //adding find path and legend buttons
 				frame.add(Legend);
-				frame.pack();
+				frame.pack(); //minimizing window
 			}
 		}
 		else if (command.equals("Open Legend")) {
-			frame.getContentPane().removeAll();
-			frame.setLayout(new GridLayout(0, 1));
-			frame.setSize(2000, 999);
+			frame.getContentPane().removeAll(); //if the user wants to see the legend, remove all components first
+			frame.setLayout(new GridLayout(0, 1)); //set the grid layout to the needed rows and columns to display the legend information
+			frame.setSize(2000, 999); //refreshes window with no delay
 			frame.setSize(2000, 1000);
 
-			frame.add(LegendLabel);
+			frame.add(LegendLabel); //adding legend label and return to maze button
 			frame.add(ReturnMaze);
 		}
 		else if (command.equals("Return to Maze")) {
-			frame.getContentPane().removeAll();
-			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			frame.getContentPane().removeAll(); //this button allows the user to return from the legend menu back to the maze
+			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); //basically a repeat of the display of maze. This displays the original maze again for the user.
 			frame.setLayout(new GridLayout(0, mainMaze[0].length));
 			frame.setLocationRelativeTo(null);
 			for (int row = 0; row < mainMaze.length; row++) {
@@ -310,17 +317,25 @@ public class MazeAssignmentGUI implements ActionListener {
 					frame.add(label);
 				}
 			}
-			frame.add(FindPath);
+			frame.add(FindPath); //adding find path and legend button
 			frame.add(Legend);
-			
 
-			frame.pack();
-			frame.setVisible(true);
+
+			frame.pack(); //minimizing window
+			frame.setVisible(true); //set frame visible
 		}
 	}
-	
+
 
 	public JLabel makeLabel(char c) {
+		/**
+		 * this method creates a label object, and places it in the grid array.
+		 * the label has a preferred size
+		 * if the character currently stored in the character variable c is a border character, path character, start character, exit character, or shortest path character, it will replace it with a label with a color based on the character
+		 * the label is then set to opaque (visible) then created with a border.
+		 * @param char c just as a placeholder for a character in the two dimensional array
+		 * @return object label
+		 */
 		JLabel label= new JLabel();
 		label.setHorizontalAlignment(JLabel.CENTER);
 		label.setPreferredSize(new Dimension(40, 40));
@@ -341,13 +356,13 @@ public class MazeAssignmentGUI implements ActionListener {
 	}
 	public static void readChars(File file) throws IOException{
 		/**
-		 * void method to read the characters for the border, open path, start, and exit
-		 * @param file the file to read from
+		 * this method accesses the file using the file object. Then using a scanner object it will skip the first two lines as those are numbers representing rows and columns. Then it will read the corresponding legend on the file and store each character into its respective variable
+		 * these variables will be used in order to make labels for the display maze
+		 * @param file object, the method reads from a file, thus the file object must be passed into this method
 		 */
 		Scanner input = new Scanner(file);
 		input.nextLine();
 		input.nextLine();
-		//these grab the next line as a string and the first character of the string
 		borderChar = input.nextLine().charAt(0);
 		pathChar = input.nextLine().charAt(0);
 		startChar = input.nextLine().charAt(0);
@@ -355,6 +370,10 @@ public class MazeAssignmentGUI implements ActionListener {
 	}
 
 	public static int readRows(File file) throws Exception {
+		/**
+		 * this method reads the first line from the file and then stores it in a variable. According to the test files the first number is the rows
+		 * @param file object, the method reads from a file, thus the file object must be passed into this method
+		 */
 		int rowsFile;
 		Scanner input = new Scanner(file);
 		rowsFile = Integer.parseInt(input.nextLine());
@@ -362,6 +381,10 @@ public class MazeAssignmentGUI implements ActionListener {
 	}
 
 	public static int readCol(File file) throws Exception {
+		/**
+		 * this method reads the second line from the file (skips the first line) and then stores it in a variable. According to the test files the second number is columns
+		 * @param file object, the method reads from a file, thus the file object must be passed into this method
+		 */
 		int columnsFile;
 		Scanner input = new Scanner(file);
 		input.nextLine();
@@ -370,6 +393,14 @@ public class MazeAssignmentGUI implements ActionListener {
 	}
 
 	public static void createArray(char[][] maze, File file) throws Exception {
+		/**
+		 * first there is a for loop that will skip the first 5 lines as those lines contain other information, not the maze.
+		 * the next for loop is a nested for loop that will take a line, store each character in the line to the variable c and then transfers the character in c to the maze indexes (passed array parameter)
+		 * if c is the start character, set has start as true indicating that the maze has a starting position
+		 * if c is the exit character, set has exit as true indicating that the maze has an exit.
+		 * @param two dimensional maze array, name doesn't matter, but mainMaze array is passed into this variable. The maze array is passed in because it reads the characters in the file and transfers it into the array
+		 * @param file object, the method reads from a file.
+		 */
 		char c;
 		Scanner input = new Scanner(file);
 		for (int i = 0; i < 5; i++) {
@@ -382,7 +413,7 @@ public class MazeAssignmentGUI implements ActionListener {
 				maze[i][j] = c;
 				if(c==startChar) hasStart = true;
 				if(c==exitChar) hasExit = true;
-				
+
 			}
 		}
 
