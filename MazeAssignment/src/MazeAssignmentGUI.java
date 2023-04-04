@@ -1,3 +1,10 @@
+/**Authors: Eric Chen, Sam Lee
+ * Description: Maze assignment for Mr A ICS4U class period 2
+ * Date: 2023-04-03
+ */
+
+
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -6,17 +13,23 @@ import java.util.*;
 
 public class MazeAssignmentGUI implements ActionListener {
 
-	static boolean north, south, east, west;
-	static boolean hasStart = false, hasExit = false;
-	static int[][] graph;
-	static boolean[] visited;
-	static char borderChar = 'B';
-	static char pathChar = 'O';
-	static char startChar = 'S';
-	static char exitChar = 'X';
-	static boolean[][] cellChecked;
-	static int numCellChecked = 0;
-	static ArrayList<ArrayList<Integer>> adjacencyList;
+	//below are the global variables for use throughout the program
+	static boolean north, south, east, west; //variables for valid direction
+	static boolean hasStart = false, hasExit = false; //variables for if maze file has starting and exit cells
+	static int[][] graph; //2d array for integer mapping of the character maze
+	static boolean[] visited; //array for storing whether or not a number has been visited
+	static char borderChar = 'B'; //character for the borders and barriers
+	static char pathChar = 'O';//character for the open path
+	static char startChar = 'S';//character for starting cell
+	static char exitChar = 'X';//character for exit cell
+	static boolean[][] cellChecked;//boolean 2d array to check if a cell has been checked by the path generation algorithm
+	static int numCellChecked = 0;//integer for total checks by the path generation algorithm
+	static ArrayList<ArrayList<Integer>> adjacencyList;//arraylist of arraylists of integers to store the integers connected to an integer in the mapped 2d integer array graph
+	/**
+	 * This list basically stores all connected integers at a certain index.
+	 * That index will be a certain integer in the 2D array graph. So at index graph[y][x]
+	 * the list will contain all integers connected to that number
+	 */
 	static ArrayList<Integer> shortest = new ArrayList<>();
 	static int min;
 	static int[] lastCoord = new int[2];
@@ -156,9 +169,6 @@ public class MazeAssignmentGUI implements ActionListener {
 				readChars(file);
 				createArray(maze, file);
 				findPath(maze);
-
-
-
 
 
 				frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -360,6 +370,8 @@ public class MazeAssignmentGUI implements ActionListener {
 			for (int j = 0; j < maze[0].length; j++) {
 				c = input.findInLine(".").charAt(0);
 				maze[i][j] = c;
+				if(c==startChar) hasStart = true;
+				if(c==exitChar) hasExit = true;
 			}
 		}
 
