@@ -3,9 +3,7 @@
  * Date: 2023-04-03
  */
 
-
-
-import javax.swing.*;
+import javax.swing.*; //import java libraries containing code for the graphical user interface
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
@@ -30,12 +28,11 @@ public class MazeAssignmentGUI implements ActionListener {
 	 * That index will be a certain integer in the 2D array graph. So at index graph[y][x]
 	 * the list will contain all integers connected to that number
 	 */
-	static ArrayList<Integer> shortest = new ArrayList<>();
-	static int min;
-	static int[] lastCoord = new int[2];
-	static char mainMaze[][]; 
+	static ArrayList<Integer> shortest = new ArrayList<>();//arraylist storing the shortest path in integers
+	static int min;//integer for the size of the current shortest path
+	static char mainMaze[][]; //used to create a copy of the maze so that the user can toggle the shortest path
 
-	static JButton OwnMazeButton = new JButton("Make your own Maze");
+	static JButton OwnMazeButton = new JButton("Make your own Maze"); //creating global object that acts as a button for user input, the same applies for all other static JButtons
 	static JButton FileMazeButton = new JButton("Open A File");
 	static JButton DoneButton = new JButton("Enter");
 	static JButton FileDoneButton = new JButton("Enter File");
@@ -43,83 +40,84 @@ public class MazeAssignmentGUI implements ActionListener {
 	static JButton FindPath = new JButton("Find Shortest Path");
 	static JButton Legend = new JButton("Open Legend");
 	static JButton ReturnMaze = new JButton("Return to Maze");
-	static JButton RegenerateMaze = new JButton("Make New Maze");
 
 
-	static JTextField RowInput = new JTextField();
-	static JTextField ColumnInput = new JTextField();
-	static JTextField EnterFileName = new JTextField();
 
-	static JLabel RowLabel = new JLabel("Enter how many rows you want in your maze");
+	static JTextField RowInput = new JTextField(); //creating global object that acts as a text field that allows users to input required numbers, in this case the number of rows for the creation of random maze
+	static JTextField ColumnInput = new JTextField();//creating global object that acts as a text field that allows users to input required numbers, in this case the number of columns for the creation of random maze
+	static JTextField EnterFileName = new JTextField();//creating global object that acts as a text field that allows users to input required numbers, in this case the name of the file of which they desire to access.
+
+	static JLabel RowLabel = new JLabel("Enter how many rows you want in your maze"); //creating global object that acts as a label that displays text/prompts to users providing them instructions on how to operate the program. This applies for all labels
 	static JLabel ColumnLabel = new JLabel("Enter how many columns you want in your maze");
 	static JLabel FileLabel = new JLabel("Enter the File Name");
 	static JLabel LegendLabel = new JLabel("Blue = Border           Red  = Starting Point            Green = Exit              White = Open Path          Yellow = Starting Point    ");
+	static JLabel NoPathLabel = new JLabel("This maze has no path");
 
 
 
 
-	JFrame frame = new JFrame();
-	JPanel panel = new JPanel();
+	static JFrame frame = new JFrame(); //creates window/frame for the program
+	static JPanel panel = new JPanel(); //creates a panel that will be added to the frame which will allows for the positioning of other objects like buttons and labels.
 
-	public MazeAssignmentGUI() {
-		frame.setVisible(true);
-		frame.setSize(2000, 1000);
-		frame.setTitle("Maze");
-		frame.add(panel);
-		panel.setLayout(null);
-		RowLabel.setFont(new Font("Arial", Font.PLAIN, 20));
+	public MazeAssignmentGUI() { //start of the MazeAssignmentGUI GUI
+		frame.setVisible(true); //sets the frame as visible thus allowing the user to actually see the window
+		frame.setSize(2000, 1000); //sets the size of the frame to 2000, 1000 pixels
+		frame.setTitle("Maze"); //sets the title of the window to the name maze
+		frame.add(panel); //adds the panel to the frame
+		panel.setLayout(null); //sets the panel's layout to null (declaring that the panel has no layouts) thus allowing the manual positioning of buttons and labels.
+		RowLabel.setFont(new Font("Arial", Font.PLAIN, 20)); //setting the font of the labels to Arial, size 20. Same goes for the other labels that have set fonts.
 		ColumnLabel.setFont(new Font("Arial", Font.PLAIN, 20));
 		FileLabel.setFont(new Font("Arial", Font.PLAIN, 20));
 		LegendLabel.setFont(new Font("Arial", Font.PLAIN, 20));
+		NoPathLabel.setFont(new Font("Arial", Font.PLAIN, 20));
 
-		OwnMazeButton.setBounds(300, 350, 500, 300);
-		FileMazeButton.setBounds(1100, 350, 500, 300);
-		panel.add(OwnMazeButton);
+		OwnMazeButton.setBounds(300, 350, 500, 300); //sets the bounds of the button, thus declaring the positioning of the button on the panel. x value of 300, y value of 350, width of 500, and height of 300
+		FileMazeButton.setBounds(1100, 350, 500, 300); //all other setBounds follow the same logic, x, y, width, height
+		panel.add(OwnMazeButton); //adding the OwnMazeButton and FileMazeButton to their respective positions onto the panel
 		panel.add(FileMazeButton);
-		OwnMazeButton.addActionListener(this);
+		OwnMazeButton.addActionListener(this); //adding action listeners that allows the program to detect if the corresponding button is clicked and then it will perform an action if it detects the user clicks the button.
 		FileMazeButton.addActionListener(this);
 		DoneButton.addActionListener(this);
 		FileDoneButton.addActionListener(this);
 		RandomMaze.addActionListener(this);
 		FindPath.addActionListener(this);
 		Legend.addActionListener(this);
-		ReturnMaze.addActionListener(this);
-		RegenerateMaze.addActionListener(this);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		ReturnMaze.addActionListener(this);		
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); //sets the default close operation to closing the JFrame window.
 	}
 
-	public static void main(String[] args) {
-		MazeAssignmentGUI frame1 = new MazeAssignmentGUI();
+	public static void main(String[] args) { //start of main method header
+		MazeAssignmentGUI frame1 = new MazeAssignmentGUI(); //this line initiates the graphical user interface
 
 	}
 
-	public void actionPerformed(ActionEvent e) {
-		int choice, rows, cols, rowsFile;
-		String fileName;
+	public void actionPerformed(ActionEvent e) { //action performed method, this method will listen for if buttons are clicked and then will perform a suitable action
+		int rows, cols; //initialization of variables used in later statements, rows to store row value for maze and cols to store column value for maze.
+		String fileName; //declares a string variable that is used to store user input when asked for a file name
 
-		String command = e.getActionCommand();
-		if(command.equals("Make your own Maze")) {
-			panel.remove(OwnMazeButton);
+		String command = e.getActionCommand(); //declaration of string command that will store the string name of the button pressed.
+		if(command.equals("Make your own Maze")) { // if they press the button that says Make your own Maze then perform the code. All command.equals do the same thing, whichever button is pressed, it will perform the if/else if statement that has the corresponding text located on the button.
+			panel.remove(OwnMazeButton); //removes OwnMazeButton and FileMazeButton so as basically to refresh the screen so other thigns can be added.
 			panel.remove(FileMazeButton);
-			OwnMazeButton.setVisible(false);
+			OwnMazeButton.setVisible(false); //sets them both to invisible so the user can't see them
 			FileMazeButton.setVisible(false);
 
-			choice = 1;
-			RowLabel.setBounds(400, 100, 500, 500);
+			
+			RowLabel.setBounds(400, 100, 500, 500); //sets the position of the labels and buttons
 			RowInput.setBounds(347, 380, 500, 50);
 			ColumnLabel.setBounds(1200, 100, 500, 500);
 			ColumnInput.setBounds(1160, 380, 500, 50);
 			DoneButton.setBounds(750, 500, 500, 200);
 			RandomMaze.setBounds(750, 750, 500, 200);
 
-			panel.add(DoneButton);
+			panel.add(DoneButton); //adds the corresponding buttons and labels.
 			panel.add(RowLabel);
 			panel.add(RowInput);
 			panel.add(ColumnLabel);
 			panel.add(ColumnInput);
 			panel.add(RandomMaze);
-
-			frame.setSize(2000, 999);
+			
+			frame.setSize(2000, 999); //this changes the frame size then changes it back to the original. This is done because without it, you would need to interact/click other parts of the window in order to perform the actions without delay. This way, it can refresh the page without delay
 			frame.setSize(2000, 1000);
 
 
@@ -127,65 +125,65 @@ public class MazeAssignmentGUI implements ActionListener {
 
 		}
 		else if (command.equals("Open A File")) {
-			panel.remove(OwnMazeButton);
+			panel.remove(OwnMazeButton); //removes OwnMazeButton and FileMazeButton and sets both to invisible
 			OwnMazeButton.setVisible(false);
 			panel.remove(FileMazeButton);
 			FileMazeButton.setVisible(false);
 
-			choice = 2;
 
-			FileLabel.setBounds(860, 180, 500, 500);
+			FileLabel.setBounds(860, 180, 500, 500); //sets position and adds to panel
 			EnterFileName.setBounds(700, 450, 500, 50);
 			FileDoneButton.setBounds(700, 550, 500, 200);
 			panel.add(FileLabel);
 			panel.add(EnterFileName);
 			panel.add(FileDoneButton);
 
-			frame.setSize(2000, 999);
+			frame.setSize(2000, 999);//for refreshing the page without delay
 			frame.setSize(2000, 1000);
 
 
 		}
 		else if (command.equals("Enter File")) {
-			panel.remove(FileLabel);
+			panel.remove(FileLabel); //removing labels and buttons 
 			panel.remove(EnterFileName);
 			panel.remove(FileDoneButton);
-			FileDoneButton.setVisible(false);
+			frame.remove(panel);
+			FileDoneButton.setVisible(false); //setting labels and buttons invisible
 			FileLabel.setVisible(false);
 			EnterFileName.setVisible(false);
-			frame.remove(panel);
 			panel.setVisible(false);
-			rows = 0;
+			rows = 0; //initializing rows and cols
 			cols = 0;
-			fileName = EnterFileName.getText();
-			File file = new File(fileName + ".txt");
-			try {
+			fileName = EnterFileName.getText(); //this grabs whatever they input into the text field asking them for user input
+			File file = new File(fileName + ".txt"); //grabs the file that they entered from the computer. Needs to be in the same folder as the src contianing the class.
+			try { //try and catch to read rows from the file, read columns from the file
 				rows = readRows(file);
-
 				cols = readCol(file);
-
-				char maze[][] = new char[rows][cols];
+				mainMaze = new char[rows][cols]; //once we have the rows and columns, a the two dimensional mainMaze array is now initialized with the corresponding rows and columns as dimensions.
 
 				readChars(file);
-				createArray(maze, file);
-				findPath(maze);
+				createArray(mainMaze, file);
+			}
 
-
-				frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-				frame.setLayout(new GridLayout(maze.length, maze[0].length));
-				frame.setLocationRelativeTo(null);
-				for (int row = 0; row < maze.length; row++) {
-					for (int col = 0; col <= maze[0].length - 1; col++) {
-						JLabel label = makeLabel(maze[row][col]);
-						frame.add(label);
-					}
-				}
-
-				frame.pack();
-				frame.setVisible(true);
-			}catch(Exception event){
+			catch (Exception event) {
 				System.out.println();
 			}
+			
+			
+			
+			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			frame.setLayout(new GridLayout(0, mainMaze[0].length));
+			frame.setLocationRelativeTo(null);
+			for (int row = 0; row < mainMaze.length; row++) {
+				for (int col = 0; col <= mainMaze[0].length-1; col++) {
+					JLabel label = makeLabel(mainMaze[row][col]);
+					frame.add(label);
+				}
+			}
+			frame.add(FindPath);
+			frame.add(Legend);
+			frame.pack();
+			frame.setVisible(true);
 		}
 		else if (command.equals("Create Maze with no Guaranteed Path")) {
 			rows = Integer.parseInt(RowInput.getText());
@@ -202,19 +200,19 @@ public class MazeAssignmentGUI implements ActionListener {
 			ColumnInput.setVisible(false);
 			DoneButton.setVisible(false);
 			panel.setVisible(false);
-			char [][] maze = new char[rows][cols];
-			noGuranteePathMaze(maze);
+			mainMaze = new char[rows][cols];
+			noGuranteePathMaze(mainMaze);
 			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-			frame.setLayout(new GridLayout(maze.length, maze[0].length));
+			frame.setLayout(new GridLayout(0, mainMaze[0].length));
 			frame.setLocationRelativeTo(null);
-			for (int row = 0; row < maze.length; row++) {
-				for (int col = 0; col <= maze[0].length-1; col++) {
-					JLabel label = makeLabel(maze[row][col]);
+			for (int row = 0; row < mainMaze.length; row++) {
+				for (int col = 0; col <= mainMaze[0].length-1; col++) {
+					JLabel label = makeLabel(mainMaze[row][col]);
 					frame.add(label);
 				}
 			}
-
-
+			frame.add(FindPath);
+			frame.add(Legend);
 			frame.pack();
 			frame.setVisible(true);
 			
@@ -257,33 +255,44 @@ public class MazeAssignmentGUI implements ActionListener {
 
 		}
 		else if (command.equals("Find Shortest Path")) {
+			
 			char tempMaze[][] = new char[mainMaze.length][mainMaze[0].length];
 			for (int i = 0; i < tempMaze.length; i++) {
 				for (int j = 0; j < tempMaze[0].length; j++) {
 					tempMaze[i][j] = mainMaze[i][j];
 				}
 			}
-			
-			frame.getContentPane().removeAll();
 			frame.setSize(2000, 999);
 			frame.setSize(2000, 1000);
 			findPath(tempMaze);
-
-			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-			frame.setLayout(new GridLayout(tempMaze.length + 1, tempMaze[0].length));
-			frame.setLocationRelativeTo(null);
-			for (int row = 0; row < tempMaze.length; row++) {
-				for (int col = 0; col <= tempMaze[0].length-1; col++) {
-					JLabel label = makeLabel(tempMaze[row][col]);
-					frame.add(label);
-				}
+			if(shortest.size()==0){
+				frame.getContentPane().removeAll();
+				frame.setLayout(new GridLayout(0, 2));
+				frame.add(NoPathLabel);
+				frame.add(ReturnMaze);
 			}
-			frame.add(FindPath);
-			frame.add(Legend);
-			frame.pack();
+			else {
+				frame.getContentPane().removeAll();
+				
+
+	
+				frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+				frame.setLayout(new GridLayout(0, tempMaze[0].length));
+				frame.setLocationRelativeTo(null);
+				for (int row = 0; row < tempMaze.length; row++) {
+					for (int col = 0; col <= tempMaze[0].length-1; col++) {
+						JLabel label = makeLabel(tempMaze[row][col]);
+						frame.add(label);
+					}
+				}
+				frame.add(FindPath);
+				frame.add(Legend);
+				frame.pack();
+			}
 		}
 		else if (command.equals("Open Legend")) {
 			frame.getContentPane().removeAll();
+			frame.setLayout(new GridLayout(0, 1));
 			frame.setSize(2000, 999);
 			frame.setSize(2000, 1000);
 
@@ -293,7 +302,7 @@ public class MazeAssignmentGUI implements ActionListener {
 		else if (command.equals("Return to Maze")) {
 			frame.getContentPane().removeAll();
 			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-			frame.setLayout(new GridLayout(mainMaze.length + 1, mainMaze[0].length));
+			frame.setLayout(new GridLayout(0, mainMaze[0].length));
 			frame.setLocationRelativeTo(null);
 			for (int row = 0; row < mainMaze.length; row++) {
 				for (int col = 0; col <= mainMaze[0].length-1; col++) {
@@ -307,10 +316,6 @@ public class MazeAssignmentGUI implements ActionListener {
 
 			frame.pack();
 			frame.setVisible(true);
-		}
-		else if (command.equals("Make New Maze")) {
-			frame.getContentPane().removeAll();
-			
 		}
 	}
 	
@@ -372,6 +377,7 @@ public class MazeAssignmentGUI implements ActionListener {
 				maze[i][j] = c;
 				if(c==startChar) hasStart = true;
 				if(c==exitChar) hasExit = true;
+				
 			}
 		}
 
@@ -436,8 +442,7 @@ public class MazeAssignmentGUI implements ActionListener {
 		drawMazeBarriers(maze);
 		int exitCoord[] = drawExit(maze);
 		int startCoord[] = drawExitPath(maze, exitCoord);
-		lastCoord[0] = startCoord[0];
-		lastCoord[1] = startCoord[1];
+
 
 		loopDraw(maze);
 
@@ -453,8 +458,8 @@ public class MazeAssignmentGUI implements ActionListener {
 		drawWalls(maze);
 	}
 	static void selectStart(char[][]maze){
-		int y = (int)(Math.random()* maze.length-1)+1;
-		int x = (int)(Math.random()*maze[0].length-1)+1;
+		int y = (int)(Math.random()*(maze.length-2))+1;
+		int x = (int)(Math.random()*(maze[0].length-2))+1;
 		maze[y][x] = startChar;
 		hasStart = true;
 	}
@@ -623,6 +628,7 @@ public class MazeAssignmentGUI implements ActionListener {
 			boolean startExitConnected = isStartExitConnected(maze, startPos[1], startPos[0]);
 			if (startExitConnected) {
 				maze[startPos[0]][startPos[1]] = '+';
+				shortest.add(1);
 			} else {
 				visited = new boolean[maze.length * maze[0].length];
 				min = maze.length * maze[0].length; //there is at most, r * c total cells
@@ -786,5 +792,7 @@ public class MazeAssignmentGUI implements ActionListener {
 		}
 	}
 }
+
+
 
 
